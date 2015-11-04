@@ -25,6 +25,8 @@ public class SwipeballConstants {
 
         public const string Scorekeeper = "Scorekeeper";
 
+        public const string Score = "Score";
+
         public const string HighScore = "High Score";
 
         public const string GameOver = "Game Over";
@@ -34,6 +36,8 @@ public class SwipeballConstants {
         public const string MainMenu = "Main Menu";
 
         public const string Instructions = "Instructions";
+
+        public const string Credits = "Credits";
 
         public const string Play = "Play";
 
@@ -57,6 +61,8 @@ public class SwipeballConstants {
     public class Effects
     {
         public const float DeathLightIntensityFade = 0.01f;
+
+        public const float GameStartAnimationDuration = 2.0f;
     }
 
     public class MenuText
@@ -72,6 +78,8 @@ public class SwipeballConstants {
         public const string MainMenu = "Main\nMenu";
 
         public const string Instructions = "Instructions";
+
+        public const string Credits = "Credits";
     }
 
     public class MaterialNames

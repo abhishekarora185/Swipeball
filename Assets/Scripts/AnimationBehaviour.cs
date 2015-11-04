@@ -1,8 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AnimationBehaviour : MonoBehaviour {
+public class AnimationBehaviour {
 
+    public static IEnumerator PlayGameStartAnimation(GameObject cleaver)
+    {
+        // Make the cleaver turn green and rotate faster
+        cleaver.GetComponent<Rigidbody2D>().angularVelocity = 20;
+        cleaver.GetComponent<Light>().color = Color.green;
+
+        // Provides enough time for the above animation to play
+        yield return new WaitForSeconds(SwipeballConstants.Effects.GameStartAnimationDuration);
+
+        Application.LoadLevel(SwipeballConstants.LevelNames.Game);
+    }
+    
     public static IEnumerator PlayDeathAnimation(GameObject deadObject)
     {
         // Disable the object's tangible attributes so that it can explode and die in peace

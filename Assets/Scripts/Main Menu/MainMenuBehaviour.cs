@@ -12,20 +12,17 @@ public class MainMenuBehaviour : MonoBehaviour {
     // Render the cleaver with minimum required components at the center of the main menu
     public GameObject cleaverDefinition;
 
+    private GameObject cleaver;
+
 	// Use this for initialization
 	void Start () {
         this.highScore = Scorekeeping.LoadHighScore();
         this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
 
         ScaleText();
-        AddTextAndButtons();
+        AddText();
         AddCleaverDecoration();
         SetButtonListeners();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
 	}
 
     private void ScaleText()
@@ -39,22 +36,10 @@ public class MainMenuBehaviour : MonoBehaviour {
         }
     }
 
-    private void AddTextAndButtons()
+    private void AddText()
     {
-        GameObject instructionsButton = GameObject.Find(SwipeballConstants.EntityNames.Instructions);
-        instructionsButton.GetComponent<Text>().text = SwipeballConstants.MenuText.Instructions;
-        Vector3 instructionsButtonPosition = Camera.main.ViewportToScreenPoint(new Vector3(0.1f, 0.9f));
-        instructionsButtonPosition.z = 0.0f;
-        instructionsButton.transform.position = instructionsButtonPosition;
-        instructionsButton.GetComponent<Button>().onClick.AddListener(() => {
-            Application.LoadLevel(SwipeballConstants.LevelNames.Instructions);
-        });
-
         GameObject highScoreText = GameObject.Find(SwipeballConstants.EntityNames.HighScore);
         highScoreText.GetComponent<Text>().text = SwipeballConstants.MenuText.HighScore + this.highScore + string.Empty;
-        Vector3 highScoreTextPosition = Camera.main.ViewportToScreenPoint(new Vector3(0.9f, 0.9f));
-        highScoreTextPosition.z = 0.0f;
-        highScoreText.transform.position = highScoreTextPosition;
     }
 
     private void AddCleaverDecoration()
@@ -66,18 +51,32 @@ public class MainMenuBehaviour : MonoBehaviour {
         cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor;
 
         // Render the cleaver
-        GameObject cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverPosition, Quaternion.identity);
+        this.cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverPosition, Quaternion.identity);
 
         // Some rudimentary decorative animation
-        cleaver.GetComponent<Rigidbody2D>().angularVelocity = 10;
+        cleaver.GetComponent<Rigidbody2D>().angularVelocity = 5;
     }
 
     private void SetButtonListeners()
     {
+        GameObject instructionsButton = GameObject.Find(SwipeballConstants.EntityNames.Instructions);
+        instructionsButton.GetComponent<Text>().text = SwipeballConstants.MenuText.Instructions;
+        instructionsButton.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            Application.LoadLevel(SwipeballConstants.LevelNames.Instructions);
+        });
+
+        GameObject creditsButton = GameObject.Find(SwipeballConstants.EntityNames.Credits);
+        creditsButton.GetComponent<Text>().text = SwipeballConstants.MenuText.Credits;
+        creditsButton.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            //Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
+        });
+
         GameObject playButton = GameObject.Find(SwipeballConstants.EntityNames.Play);
         playButton.GetComponent<Button>().onClick.AddListener(() => { 
             // Load the game
-            Application.LoadLevel(SwipeballConstants.LevelNames.Game);
+            StartCoroutine(AnimationBehaviour.PlayGameStartAnimation(this.cleaver));
         } );
     }
 }

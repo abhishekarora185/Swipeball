@@ -19,10 +19,11 @@ public class Scorekeeping : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         // Place the scorekeeper at the bottom right corner of the screen
+        /*
         Vector3 scorePosition = Camera.main.ViewportToScreenPoint(new Vector3(1.0f, 0.0f));
         scorePosition.z = 0.0f;
         this.gameObject.GetComponent<Text>().transform.position = scorePosition;
-
+        */
         score = 0;
         highScore = LoadHighScore();
         this.scoreThreshold = 500;
