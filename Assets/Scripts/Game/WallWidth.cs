@@ -16,11 +16,11 @@ public class WallWidth : MonoBehaviour {
 		EdgeCollider2D bottomWall = horizontalWalls.AddComponent<EdgeCollider2D>();
 		EdgeCollider2D topWall = horizontalWalls.AddComponent<EdgeCollider2D>();
 
-        PhysicsMaterial2D bouncyMaterial = new PhysicsMaterial2D(SwipeballConstants.MaterialNames.BouncyMaterial);
-        leftWall.sharedMaterial = bouncyMaterial;
-        rightWall.sharedMaterial = bouncyMaterial;
-        bottomWall.sharedMaterial = bouncyMaterial;
-        topWall.sharedMaterial = bouncyMaterial;
+		PhysicsMaterial2D bouncyMaterial = new PhysicsMaterial2D(SwipeballConstants.MaterialNames.BouncyMaterial);
+		leftWall.sharedMaterial = bouncyMaterial;
+		rightWall.sharedMaterial = bouncyMaterial;
+		bottomWall.sharedMaterial = bouncyMaterial;
+		topWall.sharedMaterial = bouncyMaterial;
 
 		// Place the colliders along the boundaries of the viewport
 		leftWall.points = new System.Collections.Generic.List<Vector2>() { 

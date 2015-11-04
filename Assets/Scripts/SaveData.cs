@@ -4,6 +4,6 @@ using System.Collections;
 [System.Serializable]
 public class SaveData {
 
-    public int highScore;
+	public int highScore;
 
 }

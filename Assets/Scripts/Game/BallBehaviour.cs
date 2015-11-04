@@ -5,8 +5,8 @@ public class BallBehaviour : MonoBehaviour {
 
 	// Controls the movement of the player's ball
 
-    // Determines if the ball is dead or not
-    public static bool isDead;
+	// Determines if the ball is dead or not
+	public static bool isDead;
 	// The multiplier to the force that user input adds to the ball
 	private float inputSensitivity;
 	// The physics body of the ball
@@ -18,13 +18,13 @@ public class BallBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        this.gameObject.name = SwipeballConstants.EntityNames.Ball;
+		this.gameObject.name = SwipeballConstants.EntityNames.Ball;
 		this.inputSensitivity = 9.5f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
-        isDead = false;
+		isDead = false;
 
-        // UI elements come first in the sorting layer, and then any game entities
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder = 1;
+		// UI elements come first in the sorting layer, and then any game entities
+		this.gameObject.GetComponent<SpriteRenderer>().sortingOrder = 1;
 	}
 	
 	// Update is called once per frame
@@ -59,7 +59,7 @@ public class BallBehaviour : MonoBehaviour {
 			this.ballBody.velocity = Vector2.zero;
 			this.ballBody.AddForce(forceVector, ForceMode2D.Force);
 
-            PhysicsHacks.AddRetardingForce(this.ballBody);
+			PhysicsHacks.AddRetardingForce(this.ballBody);
 		}
 	}
 

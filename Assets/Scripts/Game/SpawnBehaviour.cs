@@ -7,12 +7,12 @@ public class SpawnBehaviour : MonoBehaviour {
 	// Decides when to spawn mines
 
 	// Prefab references needed for spawning
-    public GameObject ballDefinition;
+	public GameObject ballDefinition;
 	public GameObject mineDefinition;
 	public GameObject cleaverDefinition;
 
-    // The value of scale that needs to be applied to the ball, cleaver and mines for the current screen size
-    private float objectScalingFactor;
+	// The value of scale that needs to be applied to the ball, cleaver and mines for the current screen size
+	private float objectScalingFactor;
 	// The number of mines in play at a given point in time
 	public static int minesOnField;
 	// The number of entities in play apart from the mines and the walls
@@ -31,7 +31,7 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize;
+		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize;
 
 		int initialMaxNumberOfMines = 2;
 		this.minesCreated = initialMaxNumberOfMines;
@@ -39,13 +39,13 @@ public class SpawnBehaviour : MonoBehaviour {
 		// At the start of a game, extra entities = ball and cleaver
 		numberOfExtraEntities = 2;
 		minesOnField = 0;
-        // Set the spawn threshold to half the diagonal of the level
+		// Set the spawn threshold to half the diagonal of the level
 		this.spawnThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f)).magnitude;
 		this.waveCount = 5;
 		entityPositions = new List<Vector3>();
 
-        ScaleText();
-        AddBallAndCleaver();
+		ScaleText();
+		AddBallAndCleaver();
 	}
 	
 	// Update is called once per frame
@@ -54,25 +54,25 @@ public class SpawnBehaviour : MonoBehaviour {
 		AddMines();
 	}
 
-    private void AddBallAndCleaver()
-    {
-        Vector3 ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));
-        ballSpawnPosition.z = 0.0f;
-        Vector3 cleaverSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.3f, 0.5f));
-        cleaverSpawnPosition.z = 0.0f;
+	private void AddBallAndCleaver()
+	{
+		Vector3 ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));
+		ballSpawnPosition.z = 0.0f;
+		Vector3 cleaverSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.3f, 0.5f));
+		cleaverSpawnPosition.z = 0.0f;
 
-        // Scale all objects according to screen size
-        ballDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
-        cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
-        mineDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
-        ballDefinition.GetComponent<Light>().range = this.objectScalingFactor;
-        cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor;
-        mineDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		// Scale all objects according to screen size
+		ballDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
+		cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
+		mineDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
+		ballDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		mineDefinition.GetComponent<Light>().range = this.objectScalingFactor;
 
-        // Spawn the ball and cleaver
-        Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
-        Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
-    }
+		// Spawn the ball and cleaver
+		Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
+		Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
+	}
 
 	private void AddMines()
 	{
@@ -95,7 +95,7 @@ public class SpawnBehaviour : MonoBehaviour {
 			{
 				for (int position = 0; position < spawnPositions.Length; position++)
 				{
-                    float distance = (spawnPositions[position] - entityPosition).magnitude;
+					float distance = (spawnPositions[position] - entityPosition).magnitude;
 					if (distance > this.spawnThreshold)
 					{
 						// This spawn point will not conflict with this entity's position
@@ -108,8 +108,8 @@ public class SpawnBehaviour : MonoBehaviour {
 			{
 				if (spawnPositionScores[position] >= maxSpawnPoints)
 				{
-                    maxSpawnPoints = spawnPositionScores[position];
-                    finalSpawnPosition = spawnPositions[position];
+					maxSpawnPoints = spawnPositionScores[position];
+					finalSpawnPosition = spawnPositions[position];
 				}
 			}
 
@@ -132,16 +132,16 @@ public class SpawnBehaviour : MonoBehaviour {
 		}
 	}
 
-    private void ScaleText()
-    {
-        foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.TextTag))
-        {
-            if (textObject.GetComponent<Text>() != null)
-            {
-                textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-            }
-        }
-    }
+	private void ScaleText()
+	{
+		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.TextTag))
+		{
+			if (textObject.GetComponent<Text>() != null)
+			{
+				textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
+			}
+		}
+	}
 
 	// Pop older entries, and restrict the size of this list to the number of mines + number of extra entities
 	private void CleanPositionList()
@@ -152,25 +152,25 @@ public class SpawnBehaviour : MonoBehaviour {
 		}
 	}
 
-    // Handles post-death animation processing of killed entities
-    public static void KillObject(GameObject deadObject)
-    {
-        if(deadObject.name == SwipeballConstants.EntityNames.Ball)
-        {
-            // Kill everything. Existence ceases to have meaning
-            foreach(GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.ActiveEntityTag))
-            {
-                DestroyObject(activeEntity);
-            }
+	// Handles post-death animation processing of killed entities
+	public static void KillObject(GameObject deadObject)
+	{
+		if(deadObject.name == SwipeballConstants.EntityNames.Ball)
+		{
+			// Kill everything. Existence ceases to have meaning
+			foreach(GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.ActiveEntityTag))
+			{
+				DestroyObject(activeEntity);
+			}
 
-            // Game over like a five-point palm exploding heart punch
-            Scorekeeping.SaveHighScore();
-            GameOver.CreateGameOverMenu();
-        }
-        else
-        {
-            DestroyObject(deadObject);
-        }
-    }
+			// Game over like a five-point palm exploding heart punch
+			Scorekeeping.SaveHighScore();
+			GameOver.CreateGameOverMenu();
+		}
+		else
+		{
+			DestroyObject(deadObject);
+		}
+	}
 
 }
