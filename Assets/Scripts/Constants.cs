@@ -29,6 +29,8 @@ public class SwipeballConstants {
 
         public const string HighScore = "High Score";
 
+		public const string NewHighScore = "New High Score";
+
         public const string GameOver = "Game Over";
 
         public const string PlayAgain = "Play Again";
@@ -69,7 +71,7 @@ public class SwipeballConstants {
     {
         public const string GameOver = "GAME\nOVER";
 
-        public const string Score = "Your Score : ";
+        public const string Score = "Score : ";
 
         public const string HighScore = "High Score : ";
 
@@ -80,6 +82,8 @@ public class SwipeballConstants {
         public const string Instructions = "Instructions";
 
         public const string Credits = "Credits";
+
+		public const string NewHighScore = "New High Score!";
     }
 
     public class MaterialNames
