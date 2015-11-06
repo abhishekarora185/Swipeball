@@ -6,7 +6,9 @@ public class BallBehaviour : MonoBehaviour {
 	// Controls the movement of the player's ball
 
 	// Determines if the ball is dead or not
-	public static bool isDead;
+	public bool isDead;
+	// The last position of the ball, needed for raycasting
+	public Vector3 lastPosition;
 	// The multiplier to the force that user input adds to the ball
 	private float inputSensitivity;
 	// The physics body of the ball
@@ -18,19 +20,17 @@ public class BallBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		this.gameObject.name = SwipeballConstants.EntityNames.Ball;
-		this.inputSensitivity = 9.5f;
+		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Ball;
+		this.inputSensitivity = 7.5f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
-		isDead = false;
-
-		// UI elements come first in the sorting layer, and then any game entities
-		this.gameObject.GetComponent<SpriteRenderer>().sortingOrder = 1;
+		this.isDead = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		UpdateMovementFromUserInput();
-		SpawnBehaviour.entityPositions.Add(this.gameObject.transform.position);
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGameIfOutOfBounds(this.gameObject);
 	}
 
 	private void UpdateMovementFromUserInput()

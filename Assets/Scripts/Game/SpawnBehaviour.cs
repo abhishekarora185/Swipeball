@@ -11,12 +11,15 @@ public class SpawnBehaviour : MonoBehaviour {
 	public GameObject mineDefinition;
 	public GameObject cleaverDefinition;
 
+	// The number of mines in play at a given point in time
+	public int minesOnField;
+	// Have each object update its location every frame so that the spawner knows where not to spawn mines
+	public List<Vector3> entityPositions;
+
 	// The value of scale that needs to be applied to the ball, cleaver and mines for the current screen size
 	private float objectScalingFactor;
-	// The number of mines in play at a given point in time
-	public static int minesOnField;
 	// The number of entities in play apart from the mines and the walls
-	public static int numberOfExtraEntities;
+	private int numberOfExtraEntities;
 	// The upper limit on number of mines that can be on the field at a given point in time
 	private int maxMinesOnField;
 	// The total number of mines spawned in the current wave
@@ -25,9 +28,6 @@ public class SpawnBehaviour : MonoBehaviour {
 	private float spawnThreshold;
 	// The number of mines that need to be destroyed in the current wave to increase the max number of mines allowed
 	private int waveCount;
-
-	// Have each object update its location every frame so that the spawner knows where not to spawn mines
-	public static List<Vector3> entityPositions;
 
 	// Use this for initialization
 	void Start () {
@@ -42,7 +42,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		// Set the spawn threshold to half the diagonal of the level
 		this.spawnThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f)).magnitude;
 		this.waveCount = 5;
-		entityPositions = new List<Vector3>();
+		this.entityPositions = new List<Vector3>();
 
 		ScaleText();
 		AddBallAndCleaver();
@@ -70,8 +70,11 @@ public class SpawnBehaviour : MonoBehaviour {
 		mineDefinition.GetComponent<Light>().range = this.objectScalingFactor;
 
 		// Spawn the ball and cleaver
-		Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
-		Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
+		GameObject ball = (GameObject)Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
+		GameObject cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
+
+		ball.GetComponent<BallBehaviour>().lastPosition = ballSpawnPosition;
+		cleaver.GetComponent<CleaverBehaviour>().lastPosition = cleaverSpawnPosition;
 	}
 
 	private void AddMines()
@@ -134,7 +137,7 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	private void ScaleText()
 	{
-		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.TextTag))
+		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
 		{
 			if (textObject.GetComponent<Text>() != null)
 			{
@@ -155,22 +158,45 @@ public class SpawnBehaviour : MonoBehaviour {
 	// Handles post-death animation processing of killed entities
 	public static void KillObject(GameObject deadObject)
 	{
-		if(deadObject.name == SwipeballConstants.EntityNames.Ball)
+		if(deadObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
 			// Kill everything. Existence ceases to have meaning
-			foreach(GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.ActiveEntityTag))
+			foreach(GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
 			{
 				DestroyObject(activeEntity);
 			}
 
 			// Game over like a five-point palm exploding heart punch
-			Scorekeeping.SaveHighScore();
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().SaveHighScore();
 			GameOver.CreateGameOverMenu();
 		}
 		else
 		{
 			DestroyObject(deadObject);
 		}
+	}
+
+	// Called by mines, the cleaver and the ball, this checks if the given entity is outside of the viewport
+	// (which would mean that the laws of physX have been compromised), and ends the game if so, since there is no point in living on
+	public void EndGameIfOutOfBounds(GameObject entity)
+	{
+		Vector3 entityPosition = entity.transform.position;
+		Camera mainCamera = Camera.main;
+		if (entityPosition.x > mainCamera.ViewportToWorldPoint(new Vector3(1, 1)).x || 
+			entityPosition.y > mainCamera.ViewportToWorldPoint(new Vector3(1, 1)).y || 
+			entityPosition.x < mainCamera.ViewportToWorldPoint(new Vector3(0, 0)).x || 
+			entityPosition.y < mainCamera.ViewportToWorldPoint(new Vector3(0, 0)).y)
+		{
+			EndGame();
+		}
+	}
+
+	// End the game if the laws of physX have been violated or if the laws of ball mortality have been tested
+	public void EndGame()
+	{
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel = 0;
+		StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));
 	}
 
 }

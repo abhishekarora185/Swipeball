@@ -4,15 +4,15 @@ using UnityEngine.UI;
 
 public class MainMenuBehaviour : MonoBehaviour {
 
-	private int highScore;
-	
-	// The value of scale that needs to be applied to the decorative cleaver for the current screen size
-	private float objectScalingFactor;
-
 	// Render the cleaver with minimum required components at the center of the main menu
 	public GameObject cleaverDefinition;
 
 	private GameObject cleaver;
+
+	private int highScore;
+
+	// The value of scale that needs to be applied to the decorative cleaver for the current screen size
+	private float objectScalingFactor;
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +27,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private void ScaleText()
 	{
-		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.EntityNames.TextTag))
+		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
 		{
 			if (textObject.GetComponent<Text>() != null)
 			{
@@ -38,8 +38,8 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private void AddText()
 	{
-		GameObject highScoreText = GameObject.Find(SwipeballConstants.EntityNames.HighScore);
-		highScoreText.GetComponent<Text>().text = SwipeballConstants.MenuText.HighScore + this.highScore + string.Empty;
+		GameObject highScoreText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore);
+		highScoreText.GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + this.highScore + string.Empty;
 	}
 
 	private void AddCleaverDecoration()
@@ -59,24 +59,29 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private void SetButtonListeners()
 	{
-		GameObject instructionsButton = GameObject.Find(SwipeballConstants.EntityNames.Instructions);
-		instructionsButton.GetComponent<Text>().text = SwipeballConstants.MenuText.Instructions;
+		GameObject instructionsButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Instructions);
+		instructionsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Instructions;
 		instructionsButton.GetComponent<Button>().onClick.AddListener(() =>
 		{
 			Application.LoadLevel(SwipeballConstants.LevelNames.Instructions);
 		});
 
-		GameObject creditsButton = GameObject.Find(SwipeballConstants.EntityNames.Credits);
-		creditsButton.GetComponent<Text>().text = SwipeballConstants.MenuText.Credits;
+		GameObject creditsButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Credits);
+		creditsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Credits;
 		creditsButton.GetComponent<Button>().onClick.AddListener(() =>
 		{
 			//Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
 		});
 
-		GameObject playButton = GameObject.Find(SwipeballConstants.EntityNames.Play);
+		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
 			// Load the game
-			StartCoroutine(AnimationBehaviour.PlayGameStartAnimation(this.cleaver));
+			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver));
 		} );
+	}
+
+	public void StartGame()
+	{
+		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
 	}
 }

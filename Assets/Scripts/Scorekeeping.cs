@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class Scorekeeping : MonoBehaviour {
 
-	private static int score;
+	private int score;
 
 	public static int highScore;
 
@@ -24,14 +24,13 @@ public class Scorekeeping : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		// Place the scorekeeper at the bottom right corner of the screen
-		score = 0;
+		this.score = 0;
 		highScore = LoadHighScore();
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
 		this.highScoreBeaten = false;
 
-		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.EntityNames.Scorekeeper);
+		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 		scorekeeperObject.GetComponent<Text>().enabled = true;
 	}
 	
@@ -46,13 +45,13 @@ public class Scorekeeping : MonoBehaviour {
 	{
 		this.scoreCounter = (this.scoreCounter + 1) % this.scoreThreshold;
 
-		if(!BallBehaviour.isDead)
+		if (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && !GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
 		{
 			if (this.scoreCounter == 0)
 			{
-				score++;
+				this.score++;
 			}
-			this.gameObject.GetComponent<Text>().text = score + string.Empty;
+			this.gameObject.GetComponent<Text>().text = this.score + string.Empty;
 		}
 
 	}
@@ -60,33 +59,31 @@ public class Scorekeeping : MonoBehaviour {
 	// Checks the current score against the high score to see if it's been beaten, and displays "New High Score!" if it is so
 	private void CheckAgainstHighScore()
 	{
-		if (this.highScoreBeaten == false && score > highScore)
+		if (this.highScoreBeaten == false && this.score > highScore)
 		{
 			this.highScoreBeaten = true;
 			this.newHighScoreDisplayFrames = 100;
 
-			GameObject newHighScoreObject = GameObject.Find(SwipeballConstants.EntityNames.NewHighScore);
+			GameObject newHighScoreObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore);
 			newHighScoreObject.GetComponent<Text>().fontSize = (int)(newHighScoreObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-			newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.MenuText.NewHighScore;
+			newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.NewHighScore;
 			newHighScoreObject.GetComponent<Text>().enabled = true;
 		}
 
-		if (this.newHighScoreDisplayFrames > 0 || BallBehaviour.isDead) 
+		if (this.newHighScoreDisplayFrames > 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead) 
 		{
 			this.newHighScoreDisplayFrames--;
-			if(this.newHighScoreDisplayFrames == 0 || BallBehaviour.isDead)
+			if (this.newHighScoreDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
 			{
-				GameObject.Find(SwipeballConstants.EntityNames.NewHighScore).GetComponent<Text>().enabled = false;
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore).GetComponent<Text>().enabled = false;
 			}
 		}
 	}
 
 	// Score increases triggered by other agents
-	public static void IncreaseScore(int increasedScore)
+	public void IncreaseScore(int increasedScore)
 	{
-		// TODO: Play some awesome animation
-
-		score += increasedScore;
+		this.score += increasedScore;
 	}
 
 	public static int LoadHighScore()
@@ -109,18 +106,18 @@ public class Scorekeeping : MonoBehaviour {
 		return highScore;
 	}
 
-	public static void SaveHighScore()
+	public void SaveHighScore()
 	{
-		if(score > highScore)
+		if(this.score > highScore)
 		{
 			// Needed for GameOver to display the new high score
-			highScore = score;
+			highScore = this.score;
 
 			BinaryFormatter bf = new BinaryFormatter();
 			FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
 
 			SaveData saveData = new SaveData();
-			saveData.highScore = score;
+			saveData.highScore = this.score;
 
 			bf.Serialize(file, saveData);
 		}
