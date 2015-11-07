@@ -37,7 +37,7 @@ public class MineBehaviour : MonoBehaviour {
 
 		if(this.gameObject.GetComponent<Light>() != null)
 		{
-			this.gameObject.GetComponent<Light>().color = Color.cyan;
+			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Dormant;
 		}
 	}
 	
@@ -53,15 +53,15 @@ public class MineBehaviour : MonoBehaviour {
 	private void PerformMineUpdates()
 	{
 		this.reorientCounter = (this.reorientCounter + 1) % this.reorientationDelay;
-		
-		if (!this.isDead && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && this.reorientCounter == 0)
+
+		if (!this.isDead && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && !GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead && this.reorientCounter == 0)
 		{
 			// If this is the first time the mine is reorienting, turn the mine lethal
 			if(this.isLethal == false)
 			{
 				if(this.gameObject.GetComponent<Light>() != null)
 				{
-					this.gameObject.GetComponent<Light>().color = Color.red;
+					this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Hostile;
 					this.isLethal = true;
 				}
 			}
@@ -92,7 +92,7 @@ public class MineBehaviour : MonoBehaviour {
 			this.gameObject.GetComponent<Rigidbody2D>().AddForce(repulsionSensitivity * (this.gameObject.transform.position - collision.gameObject.transform.position));
 		}
 
-        if (this.isLethal && collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Cleaver && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel > 0)
+		if (this.isLethal && collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Cleaver && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel > 0)
 		{
 			this.isDead = true;
 			StartCoroutine(SwipeballAnimation.PlayDeathAnimation(this.gameObject));

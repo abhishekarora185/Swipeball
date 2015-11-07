@@ -18,6 +18,7 @@ public class InstructionsBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ArrangeButtons();
+		UIOperations.SetTextProperties();
 		BeforeSelection();
 	}
 
@@ -104,7 +105,7 @@ public class InstructionsBehaviour : MonoBehaviour {
 		this.paragraph.GetComponent<Text>().text = SwipeballConstants.UIText.CleaverInstructions.Paragraph;
 
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 10;
-		cleaver.GetComponent<Light>().color = Color.green;
+		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 	}
 
 	private void MineSelection(GameObject mine)
@@ -113,7 +114,7 @@ public class InstructionsBehaviour : MonoBehaviour {
 		this.title.GetComponent<Text>().text = SwipeballConstants.UIText.MineInstructions.Title;
 		this.paragraph.GetComponent<Text>().text = SwipeballConstants.UIText.MineInstructions.Paragraph;
 
-		mine.GetComponent<Light>().color = Color.red;
+		mine.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Hostile;
 		mine.GetComponent<ParticleSystem>().Play();
 	}
 
@@ -121,8 +122,8 @@ public class InstructionsBehaviour : MonoBehaviour {
 	{
 		ball.GetComponent<ParticleSystem>().Stop();
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 0;
-		cleaver.GetComponent<Light>().color = Color.red;
+		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.NoPower;
 		mine.GetComponent<ParticleSystem>().Stop();
-		mine.GetComponent<Light>().color = Color.cyan;
+		mine.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Dormant;
 	}
 }

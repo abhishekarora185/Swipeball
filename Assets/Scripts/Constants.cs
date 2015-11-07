@@ -62,7 +62,7 @@ public class SwipeballConstants {
 
 			public const string Credits = "Credits";
 
-            public const string HighScore = "High Score";
+			public const string HighScore = "High Score";
 
 			public const string Play = "Play";
 
@@ -85,6 +85,36 @@ public class SwipeballConstants {
 		public const float DeathLightIntensityFade = 0.01f;
 
 		public const float GameStartAnimationDuration = 2.0f;
+	}
+
+	public class Colors
+	{
+		public class UI
+		{
+			public static Color NormalText = Color.white;
+
+			public static Color ButtonText = Color.cyan;
+		}
+
+		public class Cleaver
+		{
+			public static Color HighPower = Color.green;
+
+			public static Color LowPower = Color.yellow;
+
+			public static Color NoPower = Color.red;
+		}
+
+		public class Mine
+		{
+			public static Color Dormant = Color.cyan;
+
+			public static Color Hostile = Color.red;
+
+			public static Color Particle1 = Color.red;
+
+			public static Color Particle2 = Color.yellow;
+		}
 	}
 
 	public class UIText
@@ -171,6 +201,8 @@ public class SwipeballConstants {
 		public const string MainMenu = "Main Menu";
 
 		public const string Instructions = "Instructions";
+
+		public const string Credits = "Credits";
 	}
 
 	public class FileSystem

@@ -50,15 +50,15 @@ public class CleaverBehaviour : MonoBehaviour {
 
 		if(this.powerLevel > this.maxPower/2 && this.gameObject.GetComponent<Light>() != null)
 		{
-			this.gameObject.GetComponent<Light>().color = Color.green;
+            this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 		}
 		else if (this.powerLevel > 0 && this.powerLevel <= this.maxPower / 2 && this.gameObject.GetComponent<Light>() != null)
 		{
-			this.gameObject.GetComponent<Light>().color = Color.yellow;
+			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.LowPower;
 		}
 		else if (this.powerLevel ==0 && this.gameObject.GetComponent<Light>() != null)
 		{
-			this.gameObject.GetComponent<Light>().color = Color.red;
+			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.NoPower;
 		}
 	}
 

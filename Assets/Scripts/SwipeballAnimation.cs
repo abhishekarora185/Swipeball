@@ -7,7 +7,7 @@ public class SwipeballAnimation {
 	{
 		// Make the cleaver turn green and rotate faster
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 20;
-		cleaver.GetComponent<Light>().color = Color.green;
+		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 
 		// Provides enough time for the above animation to play
 		yield return new WaitForSeconds(SwipeballConstants.Effects.GameStartAnimationDuration);

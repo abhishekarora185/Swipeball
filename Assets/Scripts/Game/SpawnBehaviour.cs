@@ -44,7 +44,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		this.waveCount = 5;
 		this.entityPositions = new List<Vector3>();
 
-		ScaleText();
+		UIOperations.SetTextProperties();
 		AddBallAndCleaver();
 	}
 	
@@ -132,17 +132,6 @@ public class SpawnBehaviour : MonoBehaviour {
 			this.waveCount += 5;
 			this.minesCreated = 0;
 			this.maxMinesOnField++;
-		}
-	}
-
-	private void ScaleText()
-	{
-		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
-		{
-			if (textObject.GetComponent<Text>() != null)
-			{
-				textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-			}
 		}
 	}
 

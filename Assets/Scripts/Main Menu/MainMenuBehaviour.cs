@@ -19,21 +19,10 @@ public class MainMenuBehaviour : MonoBehaviour {
 		this.highScore = Scorekeeping.LoadHighScore();
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
 
-		ScaleText();
+		UIOperations.SetTextProperties();
 		AddText();
 		AddCleaverDecoration();
 		SetButtonListeners();
-	}
-
-	private void ScaleText()
-	{
-		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
-		{
-			if (textObject.GetComponent<Text>() != null)
-			{
-				textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-			}
-		}
 	}
 
 	private void AddText()
@@ -49,6 +38,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 		cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0);
 		cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		cleaverDefinition.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.NoPower;
 
 		// Render the cleaver
 		this.cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverPosition, Quaternion.identity);
