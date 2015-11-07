@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Constants.cs" />
+     <Compile Include="Assets\Scripts\Credits\CreditsBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\BallBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\CleaverBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\GameOver.cs" />

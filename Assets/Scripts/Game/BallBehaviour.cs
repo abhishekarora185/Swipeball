@@ -24,6 +24,8 @@ public class BallBehaviour : MonoBehaviour {
 		this.inputSensitivity = 7.5f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
 		this.isDead = false;
+
+		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 	}
 	
 	// Update is called once per frame

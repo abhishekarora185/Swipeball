@@ -18,33 +18,30 @@ public class InstructionsBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ArrangeButtons();
-		UIOperations.SetTextProperties();
 		BeforeSelection();
 	}
 
 	private void ArrangeButtons()
 	{
 		// Resize the sprites, text and buttons and place them
-		this.title = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.Title);
-		this.paragraph = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.Paragraph);
-		this.mainMenu = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.MainMenu);
-		this.ballButton = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.BallButton);
-		this.cleaverButton = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.CleaverButton);
-		this.mineButton = GameObject.Find(SwipeballConstants.GameObjectNames.Instructions.MineButton);
+		this.title = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.Title);
+		this.paragraph = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.Paragraph);
+		this.mainMenu = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.MainMenu);
+		this.ballButton = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.BallButton);
+		this.cleaverButton = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.CleaverButton);
+		this.mineButton = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.MineButton);
 
-		Vector3 spriteAndButtonScale = new Vector3(Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, 1.0f);
+		Vector3 spriteScale = new Vector3(Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, 1.0f);
 
-		this.ballDefinition.transform.localScale = spriteAndButtonScale;
-		this.cleaverDefinition.transform.localScale = spriteAndButtonScale;
-		this.mineDefinition.transform.localScale = spriteAndButtonScale;
+		this.ballDefinition.transform.localScale = spriteScale;
+		this.cleaverDefinition.transform.localScale = spriteScale;
+		this.mineDefinition.transform.localScale = spriteScale;
 
 		this.ballDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
 		this.cleaverDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
 		this.mineDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
 
-		this.title.GetComponent<Text>().fontSize = (int)(title.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-		this.paragraph.GetComponent<Text>().fontSize = (int)(paragraph.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
-		this.mainMenu.GetComponent<Text>().fontSize = (int)(mainMenu.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
+		UIOperations.SetTextProperties();
 
 		Vector3 ballPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.166f, 0.2f));
 		ballPosition.z = 0.0f;

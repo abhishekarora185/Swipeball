@@ -60,12 +60,12 @@ public class MainMenuBehaviour : MonoBehaviour {
 		creditsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Credits;
 		creditsButton.GetComponent<Button>().onClick.AddListener(() =>
 		{
-			//Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
+			Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
 		});
 
 		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
-			// Load the game
+			// Load the game after an encouraging animation
 			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver));
 		} );
 	}

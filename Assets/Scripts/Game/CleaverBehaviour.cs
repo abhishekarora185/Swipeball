@@ -29,6 +29,8 @@ public class CleaverBehaviour : MonoBehaviour {
 		this.maxAdditionalMass = 3;
 		this.chargeSensitivity = 20.0f;
 		this.repulsionSensitivity = 50.0f;
+
+		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 	}
 	
 	// Update is called once per frame
@@ -50,7 +52,7 @@ public class CleaverBehaviour : MonoBehaviour {
 
 		if(this.powerLevel > this.maxPower/2 && this.gameObject.GetComponent<Light>() != null)
 		{
-            this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
+			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 		}
 		else if (this.powerLevel > 0 && this.powerLevel <= this.maxPower / 2 && this.gameObject.GetComponent<Light>() != null)
 		{

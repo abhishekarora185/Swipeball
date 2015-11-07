@@ -39,7 +39,7 @@ public class SwipeballConstants {
 			public const string MainMenu = "Main Menu";
 		}
 
-		public class Instructions
+		public class InstructionsAndCredits
 		{
 			public const string Title = "Title";
 			
@@ -131,9 +131,13 @@ public class SwipeballConstants {
 
 		public const string Instructions = "Instructions";
 
-		public const string Credits = "Credits";
+		public const string Credits = "People";
 
 		public const string NewHighScore = "New High Score!";
+
+		public const string CreditsText = "Game design and implementation : Abhishek Arora\n" +
+			"Font \"SavedByZero\" : Ray Larabie\n" +
+			"Framework: Unity Team\n";
 
 		public class GeneralInstructions
 		{

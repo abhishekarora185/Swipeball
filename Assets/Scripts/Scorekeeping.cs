@@ -100,7 +100,8 @@ public class Scorekeeping : MonoBehaviour {
 		}
 		catch(System.Exception e)
 		{
-
+			Debug.Log(e);
+			highScore = 0;
 		}
 
 		return highScore;

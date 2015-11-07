@@ -10,7 +10,8 @@ public class UIOperations {
 		{
 			if (textObject.GetComponent<Text>() != null)
 			{
-				textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
+				// UI scaling seems to be self-sufficient; add back the line below if further testing proves otherwise
+				// textObject.GetComponent<Text>().fontSize = (int)(textObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
 
 				if(textObject.GetComponent<Button>() != null)
 				{

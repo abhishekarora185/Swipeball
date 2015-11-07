@@ -32,8 +32,7 @@ public class MineBehaviour : MonoBehaviour {
 		this.isDead = false;
 		this.deathScore = 30;
 
-		// UI elements come first in the sorting layer, and then any game entities
-		this.gameObject.GetComponent<SpriteRenderer>().sortingOrder = 1;
+		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 
 		if(this.gameObject.GetComponent<Light>() != null)
 		{
@@ -100,26 +99,29 @@ public class MineBehaviour : MonoBehaviour {
 			GameObject cleaver = collision.gameObject;
 			GameObject ball = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball);
 
-			// Diagonal of the game world
-			float largestDistance = (Camera.main.ViewportToWorldPoint(new Vector3(1, 1, 0)) - Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0))).magnitude;
+			if (ball != null)
+			{
+				// Diagonal of the game world
+				float largestDistance = (Camera.main.ViewportToWorldPoint(new Vector3(1, 1, 0)) - Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0))).magnitude;
 
-			// Apart from destroying the mine, give the cleaver and the player a little push from the "explosion" (neighbouring mines are resilient to such lethal force, just cause)
-			cleaver.GetComponent<Rigidbody2D>().AddForce(
-				this.explosionSensitivity * 
-				((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) * 
-				(cleaver.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
-			);
-			ball.GetComponent<Rigidbody2D>().AddForce(
-				this.explosionSensitivity *
-				((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
-				(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
-			);
+				// Apart from destroying the mine, give the cleaver and the player a little push from the "explosion" (neighbouring mines are resilient to such lethal force, just cause)
+				cleaver.GetComponent<Rigidbody2D>().AddForce(
+					this.explosionSensitivity *
+					((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
+					(cleaver.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
+				);
+				ball.GetComponent<Rigidbody2D>().AddForce(
+					this.explosionSensitivity *
+					((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
+					(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
+				);
 
-			// Let the spawner know it can add more mines
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
+				// Let the spawner know it can add more mines
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
 
-			// Increase the score
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
+				// Increase the score
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
+			}
 		}
 	}
 
