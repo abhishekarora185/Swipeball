@@ -25,7 +25,7 @@ public class BallBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Ball;
-		this.inputSensitivity = 3.0f;
+		this.inputSensitivity = 2.0f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
 		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 		this.respawnPoint.z = 0;
