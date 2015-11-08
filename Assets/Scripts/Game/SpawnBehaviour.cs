@@ -58,7 +58,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		// Set the spawn threshold to half the diagonal of the level
 		this.spawnThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f)).magnitude;
 		this.waveCount = 6;
-		this.rewardThreshold = 1;
+		this.rewardThreshold = 3;
         this.wavesClearedSinceLastReward = 0;
 		this.entityPositions = new List<Vector3>();
 
