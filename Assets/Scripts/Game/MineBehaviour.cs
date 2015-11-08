@@ -23,21 +23,15 @@ public class MineBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		this.isLethal = false;
-		this.reorientCounter = 0;
 		this.reorientationDelay = 100;
 		this.reorientationSensitivity = 20.0f;
 		this.repulsionSensitivity = 50.0f;
-		this.explosionSensitivity = 5.0f;
+		this.explosionSensitivity = 3.0f;
 		this.isDead = false;
 		this.deathScore = 30;
+		this.DormantState();
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
-
-		if(this.gameObject.GetComponent<Light>() != null)
-		{
-			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Dormant;
-		}
 	}
 	
 	// Update is called once per frame
@@ -45,7 +39,7 @@ public class MineBehaviour : MonoBehaviour {
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
 		PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
 		PerformMineUpdates();
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGameIfOutOfBounds(this.gameObject);
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
 	}
 
 	// Periodically reorients the mines in the direction of the player and does some animations
@@ -80,7 +74,7 @@ public class MineBehaviour : MonoBehaviour {
 		// Detect collisions with either the player's ball or the cleaver
 		if (this.isLethal && collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGame();
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().RespawnOrDie();
 		}
 
 		if (collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Mine)
@@ -107,14 +101,18 @@ public class MineBehaviour : MonoBehaviour {
 				// Apart from destroying the mine, give the cleaver and the player a little push from the "explosion" (neighbouring mines are resilient to such lethal force, just cause)
 				cleaver.GetComponent<Rigidbody2D>().AddForce(
 					this.explosionSensitivity *
-					((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
+					Mathf.Pow(((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance), 2) *
 					(cleaver.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
 				);
-				ball.GetComponent<Rigidbody2D>().AddForce(
-					this.explosionSensitivity *
-					((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
-					(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
-				);
+
+				if (ball.GetComponent<Rigidbody2D>().IsAwake())
+				{
+					ball.GetComponent<Rigidbody2D>().AddForce(
+						this.explosionSensitivity *
+						((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
+						(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
+					);
+				}
 
 				// Let the spawner know it can add more mines
 				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
@@ -123,6 +121,16 @@ public class MineBehaviour : MonoBehaviour {
 				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
 			}
 		}
+	}
+
+	public void DormantState()
+	{
+		this.isLethal = false;
+		if (this.gameObject.GetComponent<Light>() != null)
+		{
+			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Dormant;
+		}
+		this.reorientCounter = 0;
 	}
 
 }

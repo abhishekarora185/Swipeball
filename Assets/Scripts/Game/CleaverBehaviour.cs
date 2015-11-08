@@ -38,7 +38,7 @@ public class CleaverBehaviour : MonoBehaviour {
 		UpdatePowerLevel();
 		PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGameIfOutOfBounds(this.gameObject);
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
 	}
 
 	private void UpdatePowerLevel()

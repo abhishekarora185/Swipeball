@@ -73,9 +73,12 @@ public class SpawnBehaviour : MonoBehaviour {
 		cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor/SwipeballConstants.Scaling.CleaverScaleMultiplier, this.objectScalingFactor/SwipeballConstants.Scaling.CleaverScaleMultiplier, 0.0f);
 		mineDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
 		ballDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		ballDefinition.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
 		cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor * SwipeballConstants.Scaling.CleaverScaleMultiplier / 2;
 		cleaverDefinition.GetComponent<Light>().intensity = this.objectScalingFactor * SwipeballConstants.Scaling.CleaverScaleMultiplier / 2;
+		cleaverDefinition.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
 		mineDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		mineDefinition.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
 
 		// Spawn the ball and cleaver
 		GameObject ball = (GameObject)Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
@@ -140,6 +143,16 @@ public class SpawnBehaviour : MonoBehaviour {
 			this.waveCount += 5;
 			this.minesCreated = 0;
 			this.maxMinesOnField++;
+
+			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
+			if (scorekeeper.GetComponent<Scorekeeping>().level % 3 == 0)
+			{
+				// Every 3 levels, add a life
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives++;
+				scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
+			}
+			scorekeeper.GetComponent<Scorekeeping>().level++;
+			scorekeeper.GetComponent<Scorekeeping>().DisplayLevel();
 		}
 	}
 
@@ -175,7 +188,7 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	// Called by mines, the cleaver and the ball, this checks if the given entity is outside of the viewport
 	// (which would mean that the laws of physX have been compromised), and ends the game if so, since there is no point in living on
-	public void EndGameIfOutOfBounds(GameObject entity)
+	public void KillBallIfOutOfBounds(GameObject entity)
 	{
 		Vector3 entityPosition = entity.transform.position;
 		Camera mainCamera = Camera.main;
@@ -184,13 +197,23 @@ public class SpawnBehaviour : MonoBehaviour {
 			entityPosition.x < mainCamera.ViewportToWorldPoint(new Vector3(0, 0)).x || 
 			entityPosition.y < mainCamera.ViewportToWorldPoint(new Vector3(0, 0)).y)
 		{
-			EndGame();
+			if(entity.name == SwipeballConstants.GameObjectNames.Game.Ball)
+			{
+				// If the mine is out of bounds, simply trigger a respawn action
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().RespawnOrDie();
+			}
+			else
+			{
+				// If the cleaver or mines are out of bounds, the game is in an irrecoverable state and must be ended
+				EndGame();
+			}
 		}
 	}
 
 	// End the game if the laws of physX have been violated or if the laws of ball mortality have been tested
 	public void EndGame()
 	{
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives = 0;
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel = 0;
 		StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));

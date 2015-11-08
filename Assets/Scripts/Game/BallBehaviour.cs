@@ -9,8 +9,12 @@ public class BallBehaviour : MonoBehaviour {
 	public bool isDead;
 	// The last position of the ball, needed for raycasting
 	public Vector3 lastPosition;
+	// The number of extra times the ball can be killed before the game ends
+	public int lives;
 	// The multiplier to the force that user input adds to the ball
 	private float inputSensitivity;
+	// The point on the map where the ball respawns
+	private Vector3 respawnPoint;
 	// The physics body of the ball
 	private Rigidbody2D ballBody;
 	// The start position of a swipe input
@@ -21,18 +25,23 @@ public class BallBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Ball;
-		this.inputSensitivity = 7.5f;
+		this.inputSensitivity = 3.0f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
+		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
+		this.respawnPoint.z = 0;
 		this.isDead = false;
+		this.lives = 0;
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		UpdateMovementFromUserInput();
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGameIfOutOfBounds(this.gameObject);
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
 	}
 
 	private void UpdateMovementFromUserInput()
@@ -56,12 +65,50 @@ public class BallBehaviour : MonoBehaviour {
 		if (Input.GetKeyUp(KeyCode.Mouse0))
 		{
 			Vector2 finalPosition = Input.mousePosition;
-			Vector2 forceVector = this.inputSensitivity * (finalPosition - this.initialPosition) / this.swipeframes;
+			Vector2 dragDistance = finalPosition - this.initialPosition;
+
+			// Limit the input force by the average of the width and height
+			if(dragDistance.magnitude > (Screen.width + Screen.height) / 2)
+			{
+				dragDistance = (Screen.width + Screen.height) * dragDistance.normalized / 2;
+			}
+
+			Vector2 forceVector = this.inputSensitivity * dragDistance / 2;
 
 			this.ballBody.velocity = Vector2.zero;
 			this.ballBody.AddForce(forceVector, ForceMode2D.Force);
 
 			PhysicsHacks.AddRetardingForce(this.ballBody);
+		}
+	}
+
+	public void RespawnOrDie()
+	{
+		if (this.lives > 0)
+		{
+			// Respawn
+
+			// Render all mines dormant
+			foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+			{
+				if (activeEntity.name == SwipeballConstants.GameObjectNames.Game.Mine && activeEntity.GetComponent<MineBehaviour>() != null)
+				{
+						activeEntity.GetComponent<MineBehaviour>().DormantState();
+				}
+			}
+
+			// Now, safely respawn at the center after some cool effects
+			StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));
+			this.gameObject.transform.position = this.respawnPoint;
+			this.gameObject.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+			StartCoroutine(SwipeballAnimation.PlayRespawnAnimation());
+
+			this.lives--;
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
+		}
+		else
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGame();
 		}
 	}
 

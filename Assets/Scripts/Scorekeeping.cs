@@ -8,6 +8,8 @@ public class Scorekeeping : MonoBehaviour {
 
 	private int score;
 
+	public int level;
+
 	public static int highScore;
 
 	// The number of frames after which the score is increased by 1
@@ -22,9 +24,16 @@ public class Scorekeeping : MonoBehaviour {
 	// Number of frames for which "New High Score!" will be visible
 	private int newHighScoreDisplayFrames;
 
+	// Number of frames for which "Level <x>" will be visible
+	private int levelUpDisplayFrames;
+
+	// Number of frames for which "Lives : <x>" will be visible
+	private int livesDisplayFrames;
+
 	// Use this for initialization
 	void Start () {
 		this.score = 0;
+		this.level = 1;
 		highScore = LoadHighScore();
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
@@ -32,12 +41,15 @@ public class Scorekeeping : MonoBehaviour {
 
 		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 		scorekeeperObject.GetComponent<Text>().enabled = true;
+
+		DisplayLevel();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		UpdatePersistentScore();
 		CheckAgainstHighScore();
+		DisableTemporaryText();
 	}
 
 	// Constantly increase the score by 1 after a certain period as a survival reward
@@ -65,18 +77,58 @@ public class Scorekeeping : MonoBehaviour {
 			this.newHighScoreDisplayFrames = 100;
 
 			GameObject newHighScoreObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore);
-			newHighScoreObject.GetComponent<Text>().fontSize = (int)(newHighScoreObject.GetComponent<Text>().fontSize * Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize);
 			newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.NewHighScore;
 			newHighScoreObject.GetComponent<Text>().enabled = true;
 		}
+	}
 
-		if (this.newHighScoreDisplayFrames > 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead) 
+	public void DisplayLevel()
+	{
+		this.levelUpDisplayFrames = 100;
+
+		GameObject levelUpObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.LevelUp);
+		levelUpObject.GetComponent<Text>().text = SwipeballConstants.UIText.Level + this.level;
+		levelUpObject.GetComponent<Text>().enabled = true;
+	}
+
+	public void DisplayLives()
+	{
+		if (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null)
+		{
+			this.livesDisplayFrames = 200;
+			GameObject livesObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives);
+			livesObject.GetComponent<Text>().text = SwipeballConstants.UIText.Lives + GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives;
+			livesObject.GetComponent<Text>().enabled = true;
+		}
+	}
+
+	// Disables text that comes up during achievements after a given interval
+	private void DisableTemporaryText()
+	{
+		if (this.newHighScoreDisplayFrames > 0)
 		{
 			this.newHighScoreDisplayFrames--;
-			if (this.newHighScoreDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
-			{
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore).GetComponent<Text>().enabled = false;
-			}
+		}
+		if (this.levelUpDisplayFrames > 0)
+		{
+			this.levelUpDisplayFrames--;
+		}
+		if (this.livesDisplayFrames > 0)
+		{
+			this.livesDisplayFrames--;
+		}
+
+		if (this.newHighScoreDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore).GetComponent<Text>().enabled = false;
+		}
+		if (this.levelUpDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.LevelUp).GetComponent<Text>().enabled = false;
+		}
+		if (this.livesDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives).GetComponent<Text>().enabled = false;
 		}
 	}
 
