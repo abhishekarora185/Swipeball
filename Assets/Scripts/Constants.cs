@@ -147,7 +147,7 @@ public class SwipeballConstants {
 
 		public const string Lives = "Lives : ";
 
-		public const string CreditsText = "Game design and implementation : Abhishek Arora\n" +
+		public const string CreditsText = "Game design and implementation : Abhishek Arora [Surreal, Inc.]\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n" +
 			"Framework: Unity Team\n";
 
