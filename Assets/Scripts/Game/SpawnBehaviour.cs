@@ -34,8 +34,8 @@ public class SpawnBehaviour : MonoBehaviour {
 	private int waveCount;
 	// The number of waves that need to be cleared for one life to be awarded
 	private int rewardThreshold;
-    // The number of waves cleared since the last reward
-    private int wavesClearedSinceLastReward;
+	// The number of waves cleared since the last reward
+	private int wavesClearedSinceLastReward;
 
 	// Use this for initialization
 	void Start () {
@@ -59,7 +59,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		this.spawnThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f)).magnitude;
 		this.waveCount = 6;
 		this.rewardThreshold = 3;
-        this.wavesClearedSinceLastReward = 0;
+		this.wavesClearedSinceLastReward = 0;
 		this.entityPositions = new List<Vector3>();
 
 		UIOperations.SetTextProperties();
@@ -156,22 +156,22 @@ public class SpawnBehaviour : MonoBehaviour {
 			this.waveCount += 5;
 			this.minesCreated = 0;
 			this.maxMinesOnField++;
-            this.wavesClearedSinceLastReward++;
+			this.wavesClearedSinceLastReward++;
 
 			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 			scorekeeper.GetComponent<Scorekeeping>().level++;
 			scorekeeper.GetComponent<Scorekeeping>().DisplayLevel();
 		}
 
-        if (this.wavesClearedSinceLastReward == this.rewardThreshold)
-        {
-            // Every few levels, add a life
-            this.ballLives++;
-            this.wavesClearedSinceLastReward = 0;
+		if (this.wavesClearedSinceLastReward == this.rewardThreshold)
+		{
+			// Every few levels, add a life
+			this.ballLives++;
+			this.wavesClearedSinceLastReward = 0;
 
-            GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
-            scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
-        }
+			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
+			scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
+		}
 	}
 
 	// Pop older entries, and restrict the size of this list to the number of mines + number of extra entities
