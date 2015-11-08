@@ -74,7 +74,7 @@ public class MineBehaviour : MonoBehaviour {
 		// Detect collisions with either the player's ball or the cleaver
 		if (this.isLethal && collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().RespawnOrDie();
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBall();
 		}
 
 		if (collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Mine)
@@ -93,33 +93,30 @@ public class MineBehaviour : MonoBehaviour {
 			GameObject cleaver = collision.gameObject;
 			GameObject ball = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball);
 
-			if (ball != null)
+			// Diagonal of the game world
+			float largestDistance = (Camera.main.ViewportToWorldPoint(new Vector3(1, 1, 0)) - Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0))).magnitude;
+
+			// Apart from destroying the mine, give the cleaver and the player a little push from the "explosion" (neighbouring mines are resilient to such lethal force, just cause)
+			cleaver.GetComponent<Rigidbody2D>().AddForce(
+				this.explosionSensitivity *
+				Mathf.Pow(((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance), 2) *
+				(cleaver.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
+			);
+
+			if (ball != null && ball.GetComponent<Rigidbody2D>().IsAwake())
 			{
-				// Diagonal of the game world
-				float largestDistance = (Camera.main.ViewportToWorldPoint(new Vector3(1, 1, 0)) - Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0))).magnitude;
-
-				// Apart from destroying the mine, give the cleaver and the player a little push from the "explosion" (neighbouring mines are resilient to such lethal force, just cause)
-				cleaver.GetComponent<Rigidbody2D>().AddForce(
+				ball.GetComponent<Rigidbody2D>().AddForce(
 					this.explosionSensitivity *
-					Mathf.Pow(((largestDistance - (cleaver.transform.position - this.gameObject.transform.position).magnitude) / largestDistance), 2) *
-					(cleaver.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
+					((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
+					(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
 				);
-
-				if (ball.GetComponent<Rigidbody2D>().IsAwake())
-				{
-					ball.GetComponent<Rigidbody2D>().AddForce(
-						this.explosionSensitivity *
-						((largestDistance - (ball.transform.position - this.gameObject.transform.position).magnitude) / largestDistance) *
-						(ball.transform.position - this.gameObject.transform.position).normalized, ForceMode2D.Impulse
-					);
-				}
-
-				// Let the spawner know it can add more mines
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
-
-				// Increase the score
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
 			}
+
+			// Let the spawner know it can add more mines
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
+
+			// Increase the score
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
 		}
 	}
 

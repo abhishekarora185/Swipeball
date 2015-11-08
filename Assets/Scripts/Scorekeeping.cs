@@ -97,7 +97,7 @@ public class Scorekeeping : MonoBehaviour {
 		{
 			this.livesDisplayFrames = 200;
 			GameObject livesObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives);
-			livesObject.GetComponent<Text>().text = SwipeballConstants.UIText.Lives + GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives;
+			livesObject.GetComponent<Text>().text = SwipeballConstants.UIText.Lives + GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().ballLives;
 			livesObject.GetComponent<Text>().enabled = true;
 		}
 	}
@@ -118,15 +118,15 @@ public class Scorekeeping : MonoBehaviour {
 			this.livesDisplayFrames--;
 		}
 
-		if (this.newHighScoreDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		if (this.newHighScoreDisplayFrames == 0 || (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead))
 		{
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore).GetComponent<Text>().enabled = false;
 		}
-		if (this.levelUpDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		if (this.levelUpDisplayFrames == 0 || (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead))
 		{
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.LevelUp).GetComponent<Text>().enabled = false;
 		}
-		if (this.livesDisplayFrames == 0 || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) == null || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead)
+		if (this.livesDisplayFrames == 0 || (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead))
 		{
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives).GetComponent<Text>().enabled = false;
 		}

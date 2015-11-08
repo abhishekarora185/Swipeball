@@ -19,13 +19,7 @@ public class SwipeballAnimation {
 	{
 		// Disable the object's tangible attributes so that it can explode and die in peace
 		GameObject ball = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball);
-		ball.GetComponent<SpriteRenderer>().enabled = true;
-		ball.GetComponent<Rigidbody2D>().WakeUp();
-		ball.GetComponent<CircleCollider2D>().enabled = true;
 		ball.GetComponent<Light>().range *= SwipeballConstants.Effects.RespawnLightRangeMagnify;
-		ball.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
-
-		ball.GetComponent<ParticleSystem>().Stop();
 
 		// Provides enough time for the above animation to play
 		yield return new WaitForSeconds(ball.GetComponent<ParticleSystem>().duration);
@@ -43,21 +37,10 @@ public class SwipeballAnimation {
 
 		deadObject.GetComponent<ParticleSystem>().Play();
 
-		// If the dead object is the ball, find out how many lives it has remaining
-		int lives = 1;
-		if (deadObject.name == SwipeballConstants.GameObjectNames.Game.Ball && deadObject.GetComponent<BallBehaviour>() != null)
-		{
-			lives = deadObject.GetComponent<BallBehaviour>().lives;
-		}
-
 		// Provides enough time for the above animation to play
 		yield return new WaitForSeconds(deadObject.GetComponent<ParticleSystem>().duration);
 
-		if ((deadObject.name == SwipeballConstants.GameObjectNames.Game.Ball && lives == 0) || deadObject.name != SwipeballConstants.GameObjectNames.Game.Ball)
-		{
-			// If the ball has no lives remaining, trigger the end of the game
-			SpawnBehaviour.KillObject(deadObject);
-		}
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillObject(deadObject);
 	}
 
 }

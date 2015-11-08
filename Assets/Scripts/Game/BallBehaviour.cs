@@ -9,8 +9,6 @@ public class BallBehaviour : MonoBehaviour {
 	public bool isDead;
 	// The last position of the ball, needed for raycasting
 	public Vector3 lastPosition;
-	// The number of extra times the ball can be killed before the game ends
-	public int lives;
 	// The multiplier to the force that user input adds to the ball
 	private float inputSensitivity;
 	// The point on the map where the ball respawns
@@ -30,11 +28,8 @@ public class BallBehaviour : MonoBehaviour {
 		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 		this.respawnPoint.z = 0;
 		this.isDead = false;
-		this.lives = 0;
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
-
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
 	}
 	
 	// Update is called once per frame
@@ -79,36 +74,6 @@ public class BallBehaviour : MonoBehaviour {
 			this.ballBody.AddForce(forceVector, ForceMode2D.Force);
 
 			PhysicsHacks.AddRetardingForce(this.ballBody);
-		}
-	}
-
-	public void RespawnOrDie()
-	{
-		if (this.lives > 0)
-		{
-			// Respawn
-
-			// Render all mines dormant
-			foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
-			{
-				if (activeEntity.name == SwipeballConstants.GameObjectNames.Game.Mine && activeEntity.GetComponent<MineBehaviour>() != null)
-				{
-						activeEntity.GetComponent<MineBehaviour>().DormantState();
-				}
-			}
-
-			// Now, safely respawn at the center after some cool effects
-			StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));
-			this.gameObject.transform.position = this.respawnPoint;
-			this.gameObject.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-			StartCoroutine(SwipeballAnimation.PlayRespawnAnimation());
-
-			this.lives--;
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
-		}
-		else
-		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().EndGame();
 		}
 	}
 

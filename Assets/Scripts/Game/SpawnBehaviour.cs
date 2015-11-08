@@ -20,6 +20,10 @@ public class SpawnBehaviour : MonoBehaviour {
 	private float objectScalingFactor;
 	// The number of entities in play apart from the mines and the walls
 	private int numberOfExtraEntities;
+	// The number of extra lives the ball currently has
+	public int ballLives;
+	// The position on the field where the ball spawns
+	private Vector3 ballSpawnPosition;
 	// The upper limit on number of mines that can be on the field at a given point in time
 	private int maxMinesOnField;
 	// The total number of mines spawned in the current wave
@@ -28,6 +32,10 @@ public class SpawnBehaviour : MonoBehaviour {
 	private float spawnThreshold;
 	// The number of mines that need to be destroyed in the current wave to increase the max number of mines allowed
 	private int waveCount;
+	// The number of waves that need to be cleared for one life to be awarded
+	private int rewardThreshold;
+    // The number of waves cleared since the last reward
+    private int wavesClearedSinceLastReward;
 
 	// Use this for initialization
 	void Start () {
@@ -40,6 +48,7 @@ public class SpawnBehaviour : MonoBehaviour {
 
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize;
 
+		this.ballLives = 0;
 		int initialMaxNumberOfMines = 2;
 		this.minesCreated = initialMaxNumberOfMines;
 		this.maxMinesOnField = initialMaxNumberOfMines;
@@ -48,7 +57,9 @@ public class SpawnBehaviour : MonoBehaviour {
 		minesOnField = 0;
 		// Set the spawn threshold to half the diagonal of the level
 		this.spawnThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f)).magnitude;
-		this.waveCount = 5;
+		this.waveCount = 6;
+		this.rewardThreshold = 1;
+        this.wavesClearedSinceLastReward = 0;
 		this.entityPositions = new List<Vector3>();
 
 		UIOperations.SetTextProperties();
@@ -63,8 +74,8 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	private void AddBallAndCleaver()
 	{
-		Vector3 ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));
-		ballSpawnPosition.z = 0.0f;
+		this.ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));
+		this.ballSpawnPosition.z = 0.0f;
 		Vector3 cleaverSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.3f, 0.5f));
 		cleaverSpawnPosition.z = 0.0f;
 
@@ -81,11 +92,13 @@ public class SpawnBehaviour : MonoBehaviour {
 		mineDefinition.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
 
 		// Spawn the ball and cleaver
-		GameObject ball = (GameObject)Instantiate(ballDefinition, ballSpawnPosition, Quaternion.identity);
+		GameObject ball = (GameObject)Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
 		GameObject cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
 
-		ball.GetComponent<BallBehaviour>().lastPosition = ballSpawnPosition;
+		ball.GetComponent<BallBehaviour>().lastPosition = this.ballSpawnPosition;
 		cleaver.GetComponent<CleaverBehaviour>().lastPosition = cleaverSpawnPosition;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
 	}
 
 	private void AddMines()
@@ -138,22 +151,27 @@ public class SpawnBehaviour : MonoBehaviour {
 		}
 
 		// Increasing difficulty as the game progresses by adding more mines
-		if (this.minesCreated == this.waveCount + 1)
+		if (this.minesCreated == this.waveCount)
 		{
 			this.waveCount += 5;
 			this.minesCreated = 0;
 			this.maxMinesOnField++;
+            this.wavesClearedSinceLastReward++;
 
 			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
-			if (scorekeeper.GetComponent<Scorekeeping>().level % 3 == 0)
-			{
-				// Every 3 levels, add a life
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives++;
-				scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
-			}
 			scorekeeper.GetComponent<Scorekeeping>().level++;
 			scorekeeper.GetComponent<Scorekeeping>().DisplayLevel();
 		}
+
+        if (this.wavesClearedSinceLastReward == this.rewardThreshold)
+        {
+            // Every few levels, add a life
+            this.ballLives++;
+            this.wavesClearedSinceLastReward = 0;
+
+            GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
+            scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
+        }
 	}
 
 	// Pop older entries, and restrict the size of this list to the number of mines + number of extra entities
@@ -166,19 +184,44 @@ public class SpawnBehaviour : MonoBehaviour {
 	}
 
 	// Handles post-death animation processing of killed entities
-	public static void KillObject(GameObject deadObject)
+	public void KillObject(GameObject deadObject)
 	{
 		if(deadObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
-			// Kill everything. Existence ceases to have meaning
-			foreach(GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+			if (this.ballLives <= 0)
 			{
-				DestroyObject(activeEntity);
-			}
+				// Kill everything. Existence ceases to have meaning
+				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+				{
+					DestroyObject(activeEntity);
+				}
 
-			// Game over like a five-point palm exploding heart punch
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().SaveHighScore();
-			GameOver.CreateGameOverMenu();
+				// Game over like a five-point palm exploding heart punch
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().SaveHighScore();
+				GameOver.CreateGameOverMenu();
+			}
+			else
+			{
+				DestroyObject(deadObject);
+
+				// Render all mines dormant
+				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+				{
+					if (activeEntity.name == SwipeballConstants.GameObjectNames.Game.Mine && activeEntity.GetComponent<MineBehaviour>() != null)
+					{
+						activeEntity.GetComponent<MineBehaviour>().DormantState();
+					}
+				}
+
+				this.ballLives--;
+
+				// Respawn the ball
+				GameObject newBall = (GameObject)Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
+				newBall.GetComponent<BallBehaviour>().lastPosition = this.ballSpawnPosition;
+				StartCoroutine(SwipeballAnimation.PlayRespawnAnimation());
+				
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
+			}
 		}
 		else
 		{
@@ -199,23 +242,25 @@ public class SpawnBehaviour : MonoBehaviour {
 		{
 			if(entity.name == SwipeballConstants.GameObjectNames.Game.Ball)
 			{
-				// If the mine is out of bounds, simply trigger a respawn action
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().RespawnOrDie();
+				// If the ball is out of bounds, don't do anything; if the user has lives to spare, he will continue playing
 			}
 			else
 			{
-				// If the cleaver or mines are out of bounds, the game is in an irrecoverable state and must be ended
-				EndGame();
+				// If the cleaver or a mine is out of bounds, the game is not recoverable, and must be ended immediately
+				this.ballLives = 0;
 			}
+			KillBall();
 		}
 	}
 
 	// End the game if the laws of physX have been violated or if the laws of ball mortality have been tested
-	public void EndGame()
+	public void KillBall()
 	{
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().lives = 0;
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel = 0;
+		if (this.ballLives == 0)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel = 0;
+		}
 		StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));
 	}
 
