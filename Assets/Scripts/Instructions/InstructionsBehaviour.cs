@@ -34,11 +34,12 @@ public class InstructionsBehaviour : MonoBehaviour {
 		Vector3 spriteScale = new Vector3(Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize, 1.0f);
 
 		this.ballDefinition.transform.localScale = spriteScale;
-		this.cleaverDefinition.transform.localScale = spriteScale;
+		this.cleaverDefinition.transform.localScale = spriteScale/SwipeballConstants.Scaling.CleaverScaleMultiplier;
 		this.mineDefinition.transform.localScale = spriteScale;
 
 		this.ballDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
-		this.cleaverDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
+		this.cleaverDefinition.GetComponent<Light>().range = Screen.height * SwipeballConstants.Scaling.CleaverScaleMultiplier / (2 * SwipeballConstants.Scaling.InstructionsHeightForOriginalSize);
+		this.cleaverDefinition.GetComponent<Light>().intensity = Screen.height * SwipeballConstants.Scaling.CleaverScaleMultiplier / (2 * SwipeballConstants.Scaling.InstructionsHeightForOriginalSize);
 		this.mineDefinition.GetComponent<Light>().range = Screen.height / SwipeballConstants.Scaling.InstructionsHeightForOriginalSize;
 
 		UIOperations.SetTextProperties();

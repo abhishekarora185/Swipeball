@@ -223,6 +223,8 @@ public class SwipeballConstants {
 		public const float InstructionsHeightForOriginalSize = 160;
 
 		public const float GameHeightForOriginalSize = 480;
+
+		public const float CleaverScaleMultiplier = 2.5f;
 	}
 
 	public class PhysicsHacks

@@ -63,10 +63,11 @@ public class SpawnBehaviour : MonoBehaviour {
 
 		// Scale all objects according to screen size
 		ballDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
-		cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
+		cleaverDefinition.transform.localScale = new Vector3(this.objectScalingFactor/SwipeballConstants.Scaling.CleaverScaleMultiplier, this.objectScalingFactor/SwipeballConstants.Scaling.CleaverScaleMultiplier, 0.0f);
 		mineDefinition.transform.localScale = new Vector3(this.objectScalingFactor, this.objectScalingFactor, 0.0f);
 		ballDefinition.GetComponent<Light>().range = this.objectScalingFactor;
-		cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor;
+		cleaverDefinition.GetComponent<Light>().range = this.objectScalingFactor * SwipeballConstants.Scaling.CleaverScaleMultiplier / 2;
+		cleaverDefinition.GetComponent<Light>().intensity = this.objectScalingFactor * SwipeballConstants.Scaling.CleaverScaleMultiplier / 2;
 		mineDefinition.GetComponent<Light>().range = this.objectScalingFactor;
 
 		// Spawn the ball and cleaver
