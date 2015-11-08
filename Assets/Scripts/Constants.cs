@@ -176,10 +176,11 @@ public class SwipeballConstants {
 		{
 			public const string Title = "The Cleaver";
 
-			public const string Paragraph = "The Cleaver is the Ball's sole defense (or rather, offense) mechanism.\n" +
-											"It can destroy mines when they are not in their dormant state.\n" +
-											"It, however, runs on a power source that is constantly depleting,\n" +
-											"which can be replenished through impacts from the Ball.\n" +
+			public const string Paragraph = "The Cleaver is the Ball's sole defense mechanism.\n" +
+											"It can destroy mines when they are not in their\n" + 
+											"dormant state. It, however, runs on a power source\n" + 
+											"that is constantly depleting, which can be replenished\n" + 
+											"through impacts from the Ball.\n" +
 											"When healthy, it gives off a green light that turns yellow\n" +
 											"at half-power.\n" +
 											"Once it turns red, it will no longer be able to destroy Mines,\n" +
@@ -191,7 +192,8 @@ public class SwipeballConstants {
 			public const string Title = "The Mines";
 
 			public const string Paragraph = "The Mines are out to destroy the Ball.\n" +
-											"They are harmless to the Ball and invulnerable to the Cleaver\n" +
+											"They are harmless to the Ball\n" + 
+											"and invulnerable to the Cleaver\n" +
 											"when they first spawn in their dormant state,\n" + 
 											"taking on an innocent shade of cyan,\n" +
 											"but they soon turn a lethal red and must be destroyed.";
