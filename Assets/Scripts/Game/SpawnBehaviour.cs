@@ -31,6 +31,13 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		// Set high framerate for iOS
+		if (Application.platform == RuntimePlatform.IPhonePlayer) 
+		{
+			Application.targetFrameRate = 60;
+		}
+
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize;
 
 		int initialMaxNumberOfMines = 2;
