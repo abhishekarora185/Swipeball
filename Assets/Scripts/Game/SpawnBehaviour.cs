@@ -64,6 +64,9 @@ public class SpawnBehaviour : MonoBehaviour {
 
 		UIOperations.SetTextProperties();
 		AddBallAndCleaver();
+
+		GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
+		scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
 	}
 	
 	// Update is called once per frame

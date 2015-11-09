@@ -95,7 +95,7 @@ public class Scorekeeping : MonoBehaviour {
 	{
 		if (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null)
 		{
-			this.livesDisplayFrames = 200;
+			this.livesDisplayFrames = 500;
 			GameObject livesObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives);
 			livesObject.GetComponent<Text>().text = SwipeballConstants.UIText.Lives + GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().ballLives;
 			livesObject.GetComponent<Text>().enabled = true;
