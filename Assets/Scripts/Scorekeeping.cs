@@ -93,7 +93,7 @@ public class Scorekeeping : MonoBehaviour {
 
 	public void DisplayLives()
 	{
-		if (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null)
+		if (GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner) != null)
 		{
 			this.livesDisplayFrames = 500;
 			GameObject livesObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Lives);
