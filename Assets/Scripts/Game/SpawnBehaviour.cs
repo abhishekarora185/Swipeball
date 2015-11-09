@@ -165,9 +165,15 @@ public class SpawnBehaviour : MonoBehaviour {
 
 		if (this.wavesClearedSinceLastReward == this.rewardThreshold)
 		{
-			// Every few levels, add a life
+			// Once every few levels, add a life
 			this.ballLives++;
 			this.wavesClearedSinceLastReward = 0;
+
+			if(this.rewardThreshold > 1)
+			{
+				// The game gets ridiculously hard later on, so start giving out lives more often!
+				this.rewardThreshold--;
+			}
 
 			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 			scorekeeper.GetComponent<Scorekeeping>().DisplayLives();
