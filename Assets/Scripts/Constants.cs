@@ -41,6 +41,8 @@ public class SwipeballConstants {
 			public const string PlayAgain = "Play Again";
 
 			public const string MainMenu = "Main Menu";
+
+			public const string Music = "Music";
 		}
 
 		public class InstructionsAndCredits
@@ -71,6 +73,8 @@ public class SwipeballConstants {
 			public const string Play = "Play";
 
 			public const string Title = "Title";
+
+			public const string Sound = "Sound";
 		}
 
 		public class ObjectTags
@@ -131,7 +135,7 @@ public class SwipeballConstants {
 
 		public const string Score = "Score : ";
 
-		public const string HighScore = "High Score : ";
+		public const string HighScore = "High Score ";
 
 		public const string PlayAgain = "Play\nAgain";
 
@@ -145,11 +149,16 @@ public class SwipeballConstants {
 
 		public const string Level = "Level ";
 
-		public const string Lives = "Lives : ";
+		public const string Lives = "Lives ";
 
-		public const string CreditsText = "Game design and implementation : Abhishek Arora [Surreal, Inc.]\n" +
-			"Font \"SavedByZero\" : Ray Larabie\n" +
-			"Framework: Unity Team\n";
+		public const string Sound = "Sound ";
+
+		public const string On = "On";
+
+		public const string Off = "Off";
+
+		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
+			"Font \"SavedByZero\" : Ray Larabie\n";
 
 		public class GeneralInstructions
 		{

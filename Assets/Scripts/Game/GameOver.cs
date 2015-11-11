@@ -33,8 +33,8 @@ public class GameOver {
 		});
 		mainMenuObject.GetComponent<Text>().text = SwipeballConstants.UIText.MainMenu;
 		mainMenuObject.GetComponent<Text>().enabled = true;
-		
-		highScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + Scorekeeping.highScore;
+
+		highScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + scorekeeperObject.GetComponent<Scorekeeping>().highScore;
 		highScoreObject.GetComponent<Text>().enabled = true;
 		
 		scoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.Score + scorekeeperObject.GetComponent<Text>().text;

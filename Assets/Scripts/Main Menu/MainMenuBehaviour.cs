@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public class MainMenuBehaviour : MonoBehaviour {
 
@@ -11,12 +13,15 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private int highScore;
 
+	private bool soundEnabled;
+
 	// The value of scale that needs to be applied to the decorative cleaver for the current screen size
 	private float objectScalingFactor;
 
 	// Use this for initialization
 	void Start () {
-		this.highScore = Scorekeeping.LoadHighScore();
+		LoadHighScoreAndSoundSettings();
+
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
 
 		UIOperations.SetTextProperties();
@@ -64,15 +69,80 @@ public class MainMenuBehaviour : MonoBehaviour {
 			Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
 		});
 
+		GameObject soundButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Sound);
+		if(this.soundEnabled)
+		{
+			soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.On;
+		}
+		else
+		{
+			soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.Off;
+		}
+		soundButton.GetComponent<Button>().onClick.AddListener(() =>
+		{
+			// Toggle sound on/off and save settings to file
+			if(this.soundEnabled)
+			{
+				this.soundEnabled = false;
+				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.Off;
+			}
+			else
+			{
+				this.soundEnabled = true;
+				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.On;
+			}
+			SaveSoundSettings();
+		});
+
 		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
 			// Load the game after an encouraging animation
-			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver));
+			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver, this.soundEnabled));
 		} );
 	}
 
 	public void StartGame()
 	{
 		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
+	}
+
+	public void LoadHighScoreAndSoundSettings()
+	{
+		this.highScore = 0;
+		this.soundEnabled = false;
+
+		BinaryFormatter bf = new BinaryFormatter();
+		SaveData saveData = null;
+		try
+		{
+			if (File.Exists(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName))
+			{
+				FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.Open);
+				saveData = (SaveData)bf.Deserialize(file);
+				this.highScore = saveData.highScore;
+				this.soundEnabled = saveData.soundEnabled;
+				file.Close();
+			}
+		}
+		catch (System.Exception e)
+		{
+			this.highScore = 0;
+			this.soundEnabled = false;
+		}
+	}
+
+	public void SaveSoundSettings()
+	{
+		// Save the sound settings to file
+		BinaryFormatter bf = new BinaryFormatter();
+		FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
+
+		SaveData saveData = new SaveData();
+		saveData.highScore = this.highScore;
+		saveData.soundEnabled = this.soundEnabled;
+
+		bf.Serialize(file, saveData);
+
+		file.Close();
 	}
 }

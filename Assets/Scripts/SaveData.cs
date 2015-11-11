@@ -6,4 +6,6 @@ public class SaveData {
 
 	public int highScore;
 
+	public bool soundEnabled;
+
 }

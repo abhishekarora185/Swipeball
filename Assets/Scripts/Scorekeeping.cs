@@ -10,7 +10,9 @@ public class Scorekeeping : MonoBehaviour {
 
 	public int level;
 
-	public static int highScore;
+	public int highScore;
+
+	public bool soundEnabled;
 
 	// The number of frames after which the score is increased by 1
 	private int scoreThreshold;
@@ -34,13 +36,25 @@ public class Scorekeeping : MonoBehaviour {
 	void Start () {
 		this.score = 0;
 		this.level = 1;
-		highScore = LoadHighScore();
+		SaveData saveData = LoadHighScore();
+		this.highScore = saveData.highScore;
+		this.soundEnabled = saveData.soundEnabled;
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
 		this.highScoreBeaten = false;
 
 		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 		scorekeeperObject.GetComponent<Text>().enabled = true;
+
+		GameObject musicObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Music);
+		if(this.soundEnabled && musicObject.GetComponent<AudioSource>() != null)
+		{
+			musicObject.GetComponent<AudioSource>().enabled = true;
+		}
+		else if (musicObject.GetComponent<AudioSource>() != null)
+		{
+			musicObject.GetComponent<AudioSource>().enabled = false;
+		}
 
 		DisplayLevel();
 	}
@@ -138,25 +152,31 @@ public class Scorekeeping : MonoBehaviour {
 		this.score += increasedScore;
 	}
 
-	public static int LoadHighScore()
+	public SaveData LoadHighScore()
 	{
 		highScore = 0;
+		soundEnabled = false;
 
 		BinaryFormatter bf = new BinaryFormatter();
+		SaveData saveData = null;
 		try
 		{
-			FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.Open);
-			SaveData saveData = (SaveData)bf.Deserialize(file);
-			highScore = saveData.highScore;
-			file.Close();
+			if (File.Exists(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName))
+			{
+				FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.Open);
+				saveData = (SaveData)bf.Deserialize(file);
+				highScore = saveData.highScore;
+				soundEnabled = saveData.soundEnabled;
+				file.Close();
+			}
 		}
 		catch(System.Exception e)
 		{
-			Debug.Log(e);
 			highScore = 0;
+			soundEnabled = false;
 		}
 
-		return highScore;
+		return saveData;
 	}
 
 	public void SaveHighScore()
@@ -171,8 +191,11 @@ public class Scorekeeping : MonoBehaviour {
 
 			SaveData saveData = new SaveData();
 			saveData.highScore = this.score;
+			saveData.soundEnabled = soundEnabled;
 
 			bf.Serialize(file, saveData);
+
+			file.Close();
 		}
 	}
 }
