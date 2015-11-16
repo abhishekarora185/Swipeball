@@ -84,11 +84,13 @@ public class MainMenuBehaviour : MonoBehaviour {
 			if(this.soundEnabled)
 			{
 				this.soundEnabled = false;
+				InstructionsBehaviour.soundEnabled = false;
 				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.Off;
 			}
 			else
 			{
 				this.soundEnabled = true;
+				InstructionsBehaviour.soundEnabled = true;
 				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.On;
 			}
 			SaveSoundSettings();
@@ -110,6 +112,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 	{
 		this.highScore = 0;
 		this.soundEnabled = false;
+		InstructionsBehaviour.soundEnabled = false;
 
 		BinaryFormatter bf = new BinaryFormatter();
 		SaveData saveData = null;
@@ -121,6 +124,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 				saveData = (SaveData)bf.Deserialize(file);
 				this.highScore = saveData.highScore;
 				this.soundEnabled = saveData.soundEnabled;
+				InstructionsBehaviour.soundEnabled = saveData.soundEnabled;
 				file.Close();
 			}
 		}
@@ -128,6 +132,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 		{
 			this.highScore = 0;
 			this.soundEnabled = false;
+			InstructionsBehaviour.soundEnabled = false;
 		}
 	}
 

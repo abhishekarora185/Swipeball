@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class InstructionsBehaviour : MonoBehaviour {
 
+	public static bool soundEnabled;
+
 	public GameObject ballDefinition;
 	public GameObject cleaverDefinition;
 	public GameObject mineDefinition;
@@ -94,6 +96,10 @@ public class InstructionsBehaviour : MonoBehaviour {
 		this.paragraph.GetComponent<Text>().text = SwipeballConstants.UIText.BallInstructions.Paragraph;
 
 		ball.GetComponent<ParticleSystem>().Play();
+		if (ball.GetComponent<AudioSource>() != null && soundEnabled)
+		{
+			ball.GetComponent<AudioSource>().PlayOneShot(ball.GetComponent<AudioSource>().clip);
+		}
 	}
 
 	private void CleaverSelection(GameObject cleaver)
@@ -104,6 +110,10 @@ public class InstructionsBehaviour : MonoBehaviour {
 
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 10;
 		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
+		if (cleaver.GetComponent<AudioSource>() != null && soundEnabled)
+		{
+			cleaver.GetComponent<AudioSource>().PlayOneShot(cleaver.GetComponent<AudioSource>().clip);
+		}
 	}
 
 	private void MineSelection(GameObject mine)
@@ -114,6 +124,10 @@ public class InstructionsBehaviour : MonoBehaviour {
 
 		mine.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Hostile;
 		mine.GetComponent<ParticleSystem>().Play();
+		if (mine.GetComponent<AudioSource>() != null && soundEnabled)
+		{
+			mine.GetComponent<AudioSource>().PlayOneShot(mine.GetComponent<AudioSource>().clip);
+		}
 	}
 
 	private void StopAllAnimations(GameObject ball, GameObject cleaver, GameObject mine)

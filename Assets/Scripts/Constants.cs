@@ -97,6 +97,14 @@ public class SwipeballConstants {
 		public const float GameStartAnimationDuration = 2.0f;
 
 		public const float LightIntensity = 2.5f;
+
+		public const string LowPowerSound = "Sounds/SFX/LowPower.wav";
+
+		public const string MediumPowerSound = "Sounds/SFX/MediumPower.wav";
+
+		public const string HighPowerSound = "Sounds/SFX/HighPowerSound.wav";
+
+		public const string NewHighScoreSound = "Sounds/SFX/Button_Press.wav";
 	}
 
 	public class Colors
@@ -133,7 +141,7 @@ public class SwipeballConstants {
 	{
 		public const string GameOver = "GAME\nOVER";
 
-		public const string Score = "Score : ";
+		public const string Score = "Score ";
 
 		public const string HighScore = "High Score ";
 

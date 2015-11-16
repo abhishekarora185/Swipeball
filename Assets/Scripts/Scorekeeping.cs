@@ -32,16 +32,28 @@ public class Scorekeeping : MonoBehaviour {
 	// Number of frames for which "Lives : <x>" will be visible
 	private int livesDisplayFrames;
 
+	// The clip to be played when the high score is attained
+	private AudioClip highScoreClip;
+
 	// Use this for initialization
 	void Start () {
 		this.score = 0;
 		this.level = 1;
 		SaveData saveData = LoadHighScore();
-		this.highScore = saveData.highScore;
-		this.soundEnabled = saveData.soundEnabled;
+		if (saveData != null)
+		{
+			this.highScore = saveData.highScore;
+			this.soundEnabled = saveData.soundEnabled;
+		}
+		else
+		{
+			this.highScore = 0;
+			this.soundEnabled = false;
+		}
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
 		this.highScoreBeaten = false;
+		this.highScoreClip = (AudioClip) Resources.Load(SwipeballConstants.Effects.NewHighScoreSound);
 
 		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 		scorekeeperObject.GetComponent<Text>().enabled = true;
@@ -93,6 +105,11 @@ public class Scorekeeping : MonoBehaviour {
 			GameObject newHighScoreObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore);
 			newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.NewHighScore;
 			newHighScoreObject.GetComponent<Text>().enabled = true;
+
+			if(this.gameObject.GetComponent<AudioSource>() != null)
+			{
+				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.highScoreClip);
+			}
 		}
 	}
 

@@ -19,6 +19,10 @@ public class CleaverBehaviour : MonoBehaviour {
 	private float chargeSensitivity;
 	// The multiplier to the force which prevents the cleaver from sticking to walls
 	private float repulsionSensitivity;
+	// audio clips to be played at different power levels
+	private AudioClip lowPowerClip;
+	private AudioClip mediumPowerClip;
+	private AudioClip highPowerClip;
 	
 	// Use this for initialization
 	void Start () {
@@ -29,6 +33,9 @@ public class CleaverBehaviour : MonoBehaviour {
 		this.maxAdditionalMass = 3;
 		this.chargeSensitivity = 20.0f;
 		this.repulsionSensitivity = 50.0f;
+		this.lowPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.LowPowerSound);
+		this.mediumPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.MediumPowerSound);
+		this.highPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.HighPowerSound);
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 	}
@@ -53,14 +60,26 @@ public class CleaverBehaviour : MonoBehaviour {
 		if(this.powerLevel > this.maxPower/2 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
+			if(this.gameObject.GetComponent<AudioSource>() != null)
+			{
+				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.highPowerClip);
+			}
 		}
 		else if (this.powerLevel > 0 && this.powerLevel <= this.maxPower / 2 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.LowPower;
+			if (this.gameObject.GetComponent<AudioSource>() != null)
+			{
+				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.mediumPowerClip);
+			}
 		}
 		else if (this.powerLevel ==0 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.NoPower;
+			if (this.gameObject.GetComponent<AudioSource>() != null)
+			{
+				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.lowPowerClip);
+			}
 		}
 	}
 
