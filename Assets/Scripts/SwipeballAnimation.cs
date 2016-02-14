@@ -47,7 +47,7 @@ public class SwipeballAnimation {
 		{
 			deadObject.GetComponent<ParticleSystem>().Play();
 		}
-		if (deadObject.GetComponent<AudioSource>() != null && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().soundEnabled)
+		if (deadObject.GetComponent<AudioSource>() != null && SaveDataHandler.GetLoadedSaveData().soundEnabled)
 		{
 			deadObject.GetComponent<AudioSource>().PlayOneShot(deadObject.GetComponent<AudioSource>().clip);
 		}

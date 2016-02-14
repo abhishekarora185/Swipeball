@@ -10,10 +10,6 @@ public class Scorekeeping : MonoBehaviour {
 
 	public int level;
 
-	public int highScore;
-
-	public bool soundEnabled;
-
 	// The number of frames after which the score is increased by 1
 	private int scoreThreshold;
 
@@ -39,17 +35,7 @@ public class Scorekeeping : MonoBehaviour {
 	void Start () {
 		this.score = 0;
 		this.level = 1;
-		SaveData saveData = LoadHighScore();
-		if (saveData != null)
-		{
-			this.highScore = saveData.highScore;
-			this.soundEnabled = saveData.soundEnabled;
-		}
-		else
-		{
-			this.highScore = 0;
-			this.soundEnabled = false;
-		}
+		
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
 		this.highScoreBeaten = false;
@@ -59,7 +45,8 @@ public class Scorekeeping : MonoBehaviour {
 		scorekeeperObject.GetComponent<Text>().enabled = true;
 
 		GameObject musicObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Music);
-		if(this.soundEnabled && musicObject.GetComponent<AudioSource>() != null)
+
+		if(SaveDataHandler.GetLoadedSaveData().soundEnabled && musicObject.GetComponent<AudioSource>() != null)
 		{
 			musicObject.GetComponent<AudioSource>().enabled = true;
 		}
@@ -97,7 +84,7 @@ public class Scorekeeping : MonoBehaviour {
 	// Checks the current score against the high score to see if it's been beaten, and displays "New High Score!" if it is so
 	private void CheckAgainstHighScore()
 	{
-		if (this.highScoreBeaten == false && this.score > highScore)
+		if (this.highScoreBeaten == false && this.score > SaveDataHandler.GetLoadedSaveData().highScore)
 		{
 			this.highScoreBeaten = true;
 			this.newHighScoreDisplayFrames = 100;
@@ -169,50 +156,15 @@ public class Scorekeeping : MonoBehaviour {
 		this.score += increasedScore;
 	}
 
-	public SaveData LoadHighScore()
-	{
-		highScore = 0;
-		soundEnabled = false;
-
-		BinaryFormatter bf = new BinaryFormatter();
-		SaveData saveData = null;
-		try
-		{
-			if (File.Exists(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName))
-			{
-				FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.Open);
-				saveData = (SaveData)bf.Deserialize(file);
-				highScore = saveData.highScore;
-				soundEnabled = saveData.soundEnabled;
-				file.Close();
-			}
-		}
-		catch(System.Exception e)
-		{
-			highScore = 0;
-			soundEnabled = false;
-		}
-
-		return saveData;
-	}
-
 	public void SaveHighScore()
 	{
+		int highScore = SaveDataHandler.GetLoadedSaveData().highScore;
 		if(this.score > highScore)
 		{
 			// Needed for GameOver to display the new high score
 			highScore = this.score;
 
-			BinaryFormatter bf = new BinaryFormatter();
-			FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
-
-			SaveData saveData = new SaveData();
-			saveData.highScore = this.score;
-			saveData.soundEnabled = soundEnabled;
-
-			bf.Serialize(file, saveData);
-
-			file.Close();
+			SaveDataHandler.SetHighScore(highScore);
 		}
 	}
 }

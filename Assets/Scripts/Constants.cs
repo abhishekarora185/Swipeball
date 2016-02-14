@@ -7,6 +7,9 @@ public class SwipeballConstants {
 
 	public class GameObjectNames
 	{
+		// Present in every level
+		public const string Canvas = "Canvas";
+
 		// Names of entities in the game
 		public class Game
 		{
@@ -68,13 +71,30 @@ public class SwipeballConstants {
 
 			public const string Credits = "Credits";
 
+			public const string Settings = "Settings";
+
 			public const string HighScore = "High Score";
 
 			public const string Play = "Play";
 
 			public const string Title = "Title";
 
+			public const string Greeting = "Greeting";
+
+			public const string Leaderboard = "Leaderboard";
+
+			public const string ProfilePicture = "Profile Picture";
+		}
+
+		public class Settings
+		{
+			public const string Title = "Title";
+
+			public const string MainMenu = "Main Menu";
+
 			public const string Sound = "Sound";
+
+			public const string SyncWithFacebook = "Sync With Facebook";
 		}
 
 		public class ObjectTags
@@ -153,6 +173,8 @@ public class SwipeballConstants {
 
 		public const string Credits = "People";
 
+		public const string Settings = "Settings";
+
 		public const string NewHighScore = "New High Score!";
 
 		public const string Level = "Level ";
@@ -161,9 +183,19 @@ public class SwipeballConstants {
 
 		public const string Sound = "Sound ";
 
+		public const string SyncWithFacebook = "Sync With Facebook ";
+
 		public const string On = "On";
 
 		public const string Off = "Off";
+
+		public const string OfflineName = "Offline ";
+
+		public const string ConnectToFacebook = "Connect To\nFacebook";
+
+		public const string Disconnect = "Disconnect";
+
+		public const string Leaderboard = "Leaderboard";
 
 		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n";
@@ -231,6 +263,8 @@ public class SwipeballConstants {
 		public const string Instructions = "Instructions";
 
 		public const string Credits = "Credits";
+
+		public const string Settings = "Settings";
 	}
 
 	public class FileSystem

@@ -41,7 +41,7 @@ public class SpawnBehaviour : MonoBehaviour {
 	void Start () {
 
 		// Set high framerate for iOS
-		if (Application.platform == RuntimePlatform.IPhonePlayer) 
+		if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android) 
 		{
 			Application.targetFrameRate = 60;
 		}

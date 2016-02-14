@@ -3,37 +3,82 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using Facebook.Unity;
 
 public class MainMenuBehaviour : MonoBehaviour {
+
+	// Vary the size of the profile picture depending on the scale of the UI
+	public float profilePictureSize;
 
 	// Render the cleaver with minimum required components at the center of the main menu
 	public GameObject cleaverDefinition;
 
 	private GameObject cleaver;
 
-	private int highScore;
-
-	private bool soundEnabled;
-
 	// The value of scale that needs to be applied to the decorative cleaver for the current screen size
 	private float objectScalingFactor;
 
 	// Use this for initialization
 	void Start () {
-		LoadHighScoreAndSoundSettings();
-
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
+		// A square shape must be maintained for this object in the Unity Editor
+		this.profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().rectTransform.rect.width;
 
 		UIOperations.SetTextProperties();
+		TryFacebookLogin();
 		AddText();
+		AddProfilePicture();
+		TrySyncHighScore();
 		AddCleaverDecoration();
 		SetButtonListeners();
+	}
+
+	private void TryFacebookLogin()
+	{
+		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook)
+		{
+			if (!FB.IsInitialized)
+			{
+				FacebookSession.InitializeFacebook();
+			}
+			else if (!FB.IsLoggedIn)
+			{
+				FacebookSession.ConnectToFacebookWithReadPermissions();
+			}
+		}
 	}
 
 	private void AddText()
 	{
 		GameObject highScoreText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore);
-		highScoreText.GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + this.highScore + string.Empty;
+		highScoreText.GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + SaveDataHandler.GetLoadedSaveData().highScore;
+
+		GameObject greetingText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Greeting);
+		greetingText.GetComponent<Text>().text = SwipeballConstants.UIText.OfflineName;
+		
+		// Put the user's name in the greeting
+		if(FB.IsInitialized && FB.IsLoggedIn)
+		{
+			FacebookSession.GetUsername();
+		}
+	}
+
+	private void AddProfilePicture()
+	{
+		// This will be shown if the user successfully logs in to Facebook
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().enabled = false;
+		if (FB.IsInitialized && FB.IsLoggedIn)
+		{
+			FacebookSession.GetProfilePicture();
+		}
+	}
+
+	private void TrySyncHighScore()
+	{
+		if (FB.IsInitialized && FB.IsLoggedIn)
+		{
+			FacebookSession.GetHighScore();
+		}
 	}
 
 	private void AddCleaverDecoration()
@@ -69,38 +114,19 @@ public class MainMenuBehaviour : MonoBehaviour {
 			Application.LoadLevel(SwipeballConstants.LevelNames.Credits);
 		});
 
-		GameObject soundButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Sound);
-		if(this.soundEnabled)
+		GameObject settingsButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Settings);
+		settingsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Settings;
+		settingsButton.GetComponent<Button>().onClick.AddListener(() =>
 		{
-			soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.On;
-		}
-		else
-		{
-			soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.Off;
-		}
-		soundButton.GetComponent<Button>().onClick.AddListener(() =>
-		{
-			// Toggle sound on/off and save settings to file
-			if(this.soundEnabled)
-			{
-				this.soundEnabled = false;
-				InstructionsBehaviour.soundEnabled = false;
-				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.Off;
-			}
-			else
-			{
-				this.soundEnabled = true;
-				InstructionsBehaviour.soundEnabled = true;
-				soundButton.GetComponent<Text>().text = SwipeballConstants.UIText.Sound + SwipeballConstants.UIText.On;
-			}
-			SaveSoundSettings();
+			Application.LoadLevel(SwipeballConstants.LevelNames.Settings);
 		});
 
 		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
 			// Load the game after an encouraging animation
-			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver, this.soundEnabled));
+			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver, SaveDataHandler.GetLoadedSaveData().soundEnabled));
 		} );
+
 	}
 
 	public void StartGame()
@@ -108,46 +134,4 @@ public class MainMenuBehaviour : MonoBehaviour {
 		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
 	}
 
-	public void LoadHighScoreAndSoundSettings()
-	{
-		this.highScore = 0;
-		this.soundEnabled = false;
-		InstructionsBehaviour.soundEnabled = false;
-
-		BinaryFormatter bf = new BinaryFormatter();
-		SaveData saveData = null;
-		try
-		{
-			if (File.Exists(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName))
-			{
-				FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.Open);
-				saveData = (SaveData)bf.Deserialize(file);
-				this.highScore = saveData.highScore;
-				this.soundEnabled = saveData.soundEnabled;
-				InstructionsBehaviour.soundEnabled = saveData.soundEnabled;
-				file.Close();
-			}
-		}
-		catch (System.Exception e)
-		{
-			this.highScore = 0;
-			this.soundEnabled = false;
-			InstructionsBehaviour.soundEnabled = false;
-		}
-	}
-
-	public void SaveSoundSettings()
-	{
-		// Save the sound settings to file
-		BinaryFormatter bf = new BinaryFormatter();
-		FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
-
-		SaveData saveData = new SaveData();
-		saveData.highScore = this.highScore;
-		saveData.soundEnabled = this.soundEnabled;
-
-		bf.Serialize(file, saveData);
-
-		file.Close();
-	}
 }
