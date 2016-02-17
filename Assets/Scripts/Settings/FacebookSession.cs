@@ -169,18 +169,17 @@ public class FacebookSession {
 
 	private static void GetHighScoreCallback(IGraphResult result)
 	{
-		IDictionary data = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as IDictionary;
+		var data = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
 
-		IList scores = (IList)data["data"];
-		IDictionary thisApp = null;
+		var scores = (List<object>)data["data"];
+		Dictionary<string, object> thisApp = null;
 
 		if (scores != null)
 		{
-			foreach (IDictionary app in scores)
+			foreach (Dictionary<string, object> app in scores)
 			{
 				// Find the score associated with this app, if any
-
-				if (app["application"] != null && (string)(((IDictionary)app["application"])["id"]) == FB.AppId)
+				if (app["application"] != null && (string)(((Dictionary<string, object>)app["application"])["id"]) == FB.AppId)
 				{
 					thisApp = app;
 					break;
@@ -188,9 +187,12 @@ public class FacebookSession {
 			}
 		}
 
-		var thisAppScore = System.Int32.Parse((string)thisApp["score"]);
+		// Safe Parsing!
+		int thisAppScore;
+		string scoreString = thisApp["score"].ToString();
+		bool scoreParsed = System.Int32.TryParse(scoreString, out thisAppScore);
 
-		if (thisApp == null || SaveDataHandler.GetLoadedSaveData().highScore > thisAppScore)
+		if (scoreParsed && (thisApp == null || SaveDataHandler.GetLoadedSaveData().highScore > thisAppScore))
 		{
 			// Push the new high score to Facebook
 			publishScoreDictionary = new Dictionary<string, string>() { { "score", SaveDataHandler.GetLoadedSaveData().highScore + System.String.Empty } };
@@ -200,8 +202,13 @@ public class FacebookSession {
 		}
 		else if (thisAppScore > SaveDataHandler.GetLoadedSaveData().highScore)
 		{
-			// Save the remote high score locally
+			// Save the remote high score locally and display it, if necessary
 			SaveDataHandler.SetHighScore(thisAppScore);
+
+			if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
+			{
+				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + SaveDataHandler.GetLoadedSaveData().highScore;
+			}
 		}
 	}
 

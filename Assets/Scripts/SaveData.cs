@@ -38,7 +38,12 @@ public class SaveDataHandler
 	private static SaveData LoadDataFromStorage()
 	{
 		BinaryFormatter bf = new BinaryFormatter();
-		
+
+		saveData = new SaveData();
+		saveData.highScore = 0;
+		saveData.soundEnabled = false;
+		saveData.syncWithFacebook = false;
+
 		try
 		{
 			if (File.Exists(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName))
@@ -50,10 +55,7 @@ public class SaveDataHandler
 		}
 		catch (System.Exception e)
 		{
-			saveData = new SaveData();
-			saveData.highScore = 0;
-			saveData.soundEnabled = false;
-			saveData.syncWithFacebook = false;
+			Debug.Log(e);
 		}
 		return saveData;
 	}
