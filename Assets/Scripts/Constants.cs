@@ -97,6 +97,13 @@ public class SwipeballConstants {
 			public const string SyncWithFacebook = "Sync With Facebook";
 		}
 
+		public class Leaderboard
+		{
+			public const string Title = "Title";
+
+			public const string MainMenu = "Main Menu";
+		}
+
 		public class ObjectTags
 		{
 			public const string ActiveEntityTag = "Active Entity";
@@ -115,6 +122,8 @@ public class SwipeballConstants {
 		public const float DeathLightIntensityFade = 0.01f;
 
 		public const float GameStartAnimationDuration = 2.0f;
+
+		public const float SyncedMessageDuration = 2.0f;
 
 		public const float LightIntensity = 2.5f;
 
@@ -196,6 +205,10 @@ public class SwipeballConstants {
 		public const string Disconnect = "Disconnect";
 
 		public const string Leaderboard = "Leaderboard";
+
+		public const string Synced = "Synced";
+
+		public const string User = "User";
 
 		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n";

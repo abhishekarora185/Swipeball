@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class SwipeballAnimation {
 
@@ -56,6 +57,17 @@ public class SwipeballAnimation {
 		yield return new WaitForSeconds(deadObject.GetComponent<ParticleSystem>().duration);
 
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillObject(deadObject);
+	}
+
+	public static IEnumerator PrintSyncedMessage()
+	{
+		// This is only called by main menu, so it is assumed that the required objects exist
+		string originalText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text;
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.Synced;
+
+		yield return new WaitForSeconds(SwipeballConstants.Effects.SyncedMessageDuration);
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = originalText;
 	}
 
 }

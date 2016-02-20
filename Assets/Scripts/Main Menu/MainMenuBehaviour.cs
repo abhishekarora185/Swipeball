@@ -25,6 +25,8 @@ public class MainMenuBehaviour : MonoBehaviour {
 		this.profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().rectTransform.rect.width;
 
 		UIOperations.SetTextProperties();
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Button>().enabled = false;
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Text>().enabled = false;
 		TryFacebookLogin();
 		AddText();
 		AddProfilePicture();
@@ -127,6 +129,23 @@ public class MainMenuBehaviour : MonoBehaviour {
 			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver, SaveDataHandler.GetLoadedSaveData().soundEnabled));
 		} );
 
+	}
+
+	public void PrintSyncedMessage()
+	{
+		StartCoroutine(SwipeballAnimation.PrintSyncedMessage());
+	}
+
+	public void EnableLeaderboard()
+	{
+		GameObject leaderboardButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard);
+		leaderboardButton.GetComponent<Button>().enabled = true;
+		leaderboardButton.GetComponent<Text>().enabled = true;
+		leaderboardButton.GetComponent<Button>().onClick.AddListener(() =>
+		{
+			// TODO: Enable once the level is created
+			// Application.LoadLevel(SwipeballConstants.LevelNames.Leaderboard);
+		} );
 	}
 
 	public void StartGame()

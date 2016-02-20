@@ -188,11 +188,16 @@ public class FacebookSession {
 		}
 
 		// Safe Parsing!
-		int thisAppScore;
-		string scoreString = thisApp["score"].ToString();
-		bool scoreParsed = System.Int32.TryParse(scoreString, out thisAppScore);
+		int thisAppScore = 0;
+		bool scoreParsed = false;
 
-		if (scoreParsed && (thisApp == null || SaveDataHandler.GetLoadedSaveData().highScore > thisAppScore))
+		if (thisApp != null && thisApp.ContainsKey("score"))
+		{
+			string scoreString = thisApp["score"].ToString();
+			scoreParsed = System.Int32.TryParse(scoreString, out thisAppScore);
+		}
+
+		if (thisApp == null || (scoreParsed && SaveDataHandler.GetLoadedSaveData().highScore > thisAppScore))
 		{
 			// Push the new high score to Facebook
 			publishScoreDictionary = new Dictionary<string, string>() { { "score", SaveDataHandler.GetLoadedSaveData().highScore + System.String.Empty } };
@@ -200,7 +205,7 @@ public class FacebookSession {
 			ConnectToFacebookWithPublishPermissions();
 
 		}
-		else if (thisAppScore > SaveDataHandler.GetLoadedSaveData().highScore)
+		else if (scoreParsed && thisAppScore >= SaveDataHandler.GetLoadedSaveData().highScore)
 		{
 			// Save the remote high score locally and display it, if necessary
 			SaveDataHandler.SetHighScore(thisAppScore);
@@ -208,13 +213,19 @@ public class FacebookSession {
 			if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 			{
 				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + SaveDataHandler.GetLoadedSaveData().highScore;
+				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().PrintSyncedMessage();
+				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
 			}
+
 		}
 	}
 
 	private static void ScorePublishCallback(IGraphResult result)
 	{
-		Debug.Log("Score post successful!");
+		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().PrintSyncedMessage();
+		}
 	}
-	
+
 }
