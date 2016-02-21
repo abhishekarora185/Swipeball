@@ -7,12 +7,17 @@ using UnityEngine.UI;
 public class FacebookSession {
 
 	// Handles Facebook sessions and data transfer, and updates the UI with Facebook-relevant data
-
-	public static string username = "";
-
-	public static int highScore = 0;
-
 	private static Dictionary<string, string> publishScoreDictionary;
+
+	// Cache user/friends data so it can be accessed without having to query multiple times
+	public static Dictionary<string, object> user;
+	public static Dictionary<string, Dictionary<string, object>> userFriends;
+	// Store user ids in order as retrieved from facebook
+	public static List<string> leaderboardUserIdsSorted;
+
+	// The user id of the last fetched profile picture
+	// Global variable needed for caching the Texture since callback for profile picture retrieval does not have userid in context
+	private static string lastRetrievedProfilePicture = string.Empty;
 
 	public static void InitializeFacebook()
 	{
@@ -76,19 +81,9 @@ public class FacebookSession {
 		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 		{
 			GetUsername();
-			GetProfilePicture();
+			float profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().profilePictureSize;
+			GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId, profilePictureSize);
 			GetHighScore();
-		}
-	}
-
-	private static void ConnectWithPublishPermissionsCallback(ILoginResult result)
-	{
-		// Handle post-login for different levels depending on what information they will need to post
-
-		if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-		{
-			// Post high score
-			FB.API("me/scores", HttpMethod.POST, ScorePublishCallback, publishScoreDictionary);
 		}
 	}
 
@@ -96,7 +91,7 @@ public class FacebookSession {
 	{
 		if (FB.IsLoggedIn)
 		{
-			FB.API("me?fields=name", HttpMethod.GET, GetUsernameCallback);
+			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "?fields=name,id", HttpMethod.GET, GetUsernameCallback);
 		}
 		else
 		{
@@ -108,13 +103,19 @@ public class FacebookSession {
 	{
 		if (result.Error == null)
 		{
-			IDictionary user = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as IDictionary;
-			username = user["name"].ToString();
+			if(user == null)
+			{
+				user = new Dictionary<string, object>();
+			}
+
+			Dictionary<string, object> fetchedUser = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
+			user["name"] = fetchedUser["name"];
+			user["id"] = fetchedUser["id"];
 
 			if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 			{
 				GameObject greetingText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Greeting);
-				greetingText.GetComponent<Text>().text = username + " ";
+				greetingText.GetComponent<Text>().text = user["name"] + " ";
 			}
 		}
 		else
@@ -123,12 +124,12 @@ public class FacebookSession {
 		}
 	}
 
-	public static void GetProfilePicture()
+	public static void GetProfilePicture(string userId, float profilePictureSize)
 	{
 		if (FB.IsLoggedIn)
 		{
-			float profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().profilePictureSize;
-			FB.API("me/picture?type=square&height=" + profilePictureSize + "&width=" + profilePictureSize, HttpMethod.GET, GetProfilePictureCallback);
+			lastRetrievedProfilePicture = userId;
+			FB.API(userId + "/picture?type=square&height=" + profilePictureSize + "&width=" + profilePictureSize, HttpMethod.GET, GetProfilePictureCallback);
 		}
 		else
 		{
@@ -140,6 +141,20 @@ public class FacebookSession {
 	{
 		if (result.Error == null)
 		{
+			if (lastRetrievedProfilePicture == SwipeballConstants.FacebookConstants.LoggedInUserId)
+			{
+				// Profile picture of the logged in user
+				user["picture"] = result.Texture;
+			}
+			else if(lastRetrievedProfilePicture != string.Empty)
+			{
+				// Profile picture of a friend of the logged in user
+				if(userFriends[lastRetrievedProfilePicture] == null)
+				{
+					userFriends[lastRetrievedProfilePicture] = new Dictionary<string, object>();
+				}
+				userFriends[lastRetrievedProfilePicture]["picture"] = result.Texture;
+			}
 			if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 			{
 				float profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().profilePictureSize;
@@ -159,7 +174,7 @@ public class FacebookSession {
 	{
 		if (FB.IsLoggedIn)
 		{
-			FB.API("me/scores?fields=score,application", HttpMethod.GET, GetHighScoreCallback);
+			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores?fields=score,application", HttpMethod.GET, GetHighScoreCallback);
 		}
 		else
 		{
@@ -217,6 +232,71 @@ public class FacebookSession {
 				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
 			}
 
+		}
+	}
+
+	public static void GetFriendScores()
+	{
+		if (FB.IsLoggedIn)
+		{
+			FB.API(FB.AppId + "/scores", HttpMethod.GET, GetFriendScoresCallback);
+		}
+		else
+		{
+			Debug.Log("Could not retrieve friends' scores because the user is not logged in.");
+		}
+	}
+
+	private static void GetFriendScoresCallback(IGraphResult result)
+	{
+		if (result.Error == null)
+		{
+			var data = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
+			var scores = (List<object>)data["data"];
+
+			if (scores != null)
+			{
+				foreach (Dictionary<string, object> userScore in scores)
+				{
+					var thisUser = (Dictionary<string, object>)userScore["user"];
+					string username = thisUser["name"].ToString();
+					string userid = thisUser["id"].ToString();
+					string score = userScore["score"].ToString();
+
+					// Cache, cache, cache!
+					if (userFriends == null)
+					{
+						userFriends = new Dictionary<string, Dictionary<string, object>>();
+					}
+					if (!userFriends.ContainsKey(userid) || userFriends[userid] == null)
+					{
+						userFriends[userid] = new Dictionary<string, object>();
+					}
+					userFriends[userid]["name"] = username;
+					userFriends[userid]["score"] = score;
+
+					if(leaderboardUserIdsSorted == null)
+					{
+						leaderboardUserIdsSorted = new List<string>();
+					}
+					leaderboardUserIdsSorted.Add(userid);
+				}
+			}
+		}
+		else
+		{
+			Debug.Log(result.Error);
+		}
+	}
+
+	private static void ConnectWithPublishPermissionsCallback(ILoginResult result)
+	{
+		// Handle post-login for different levels depending on what information they will need to post
+
+		if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
+		{
+			// Post high score
+			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores", HttpMethod.POST, ScorePublishCallback, publishScoreDictionary);
 		}
 	}
 

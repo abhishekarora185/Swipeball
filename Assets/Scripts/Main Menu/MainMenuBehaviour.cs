@@ -61,7 +61,14 @@ public class MainMenuBehaviour : MonoBehaviour {
 		// Put the user's name in the greeting
 		if(FB.IsInitialized && FB.IsLoggedIn)
 		{
-			FacebookSession.GetUsername();
+			if (FacebookSession.user != null && FacebookSession.user.ContainsKey("name"))
+			{
+				greetingText.GetComponent<Text>().text = FacebookSession.user["name"].ToString();
+			}
+			else
+			{
+				FacebookSession.GetUsername();
+			}
 		}
 	}
 
@@ -69,9 +76,15 @@ public class MainMenuBehaviour : MonoBehaviour {
 	{
 		// This will be shown if the user successfully logs in to Facebook
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().enabled = false;
-		if (FB.IsInitialized && FB.IsLoggedIn)
+		if (FB.IsInitialized && FB.IsLoggedIn && (FacebookSession.user == null || !FacebookSession.user.ContainsKey("picture")))
 		{
-			FacebookSession.GetProfilePicture();
+			FacebookSession.GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId, this.profilePictureSize);
+		}
+		else if(FacebookSession.user != null && FacebookSession.user.ContainsKey("picture"))
+		{
+			Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
+			profilePicture.enabled = true;
+			profilePicture.sprite = Sprite.Create((Texture2D)FacebookSession.user["picture"], new Rect(0, 0, profilePictureSize, profilePictureSize), new Vector2());
 		}
 	}
 
@@ -143,8 +156,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 		leaderboardButton.GetComponent<Text>().enabled = true;
 		leaderboardButton.GetComponent<Button>().onClick.AddListener(() =>
 		{
-			// TODO: Enable once the level is created
-			// Application.LoadLevel(SwipeballConstants.LevelNames.Leaderboard);
+			Application.LoadLevel(SwipeballConstants.LevelNames.Leaderboard);
 		} );
 	}
 

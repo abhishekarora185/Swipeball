@@ -115,6 +115,11 @@ public class SwipeballConstants {
 
 	}
 
+	public class FacebookConstants
+	{
+		public const string LoggedInUserId = "me";
+	}
+
 	public class Effects
 	{
 		public const float RespawnLightRangeMagnify = 2.0f;
@@ -278,6 +283,8 @@ public class SwipeballConstants {
 		public const string Credits = "Credits";
 
 		public const string Settings = "Settings";
+
+		public const string Leaderboard = "Leaderboard";
 	}
 
 	public class FileSystem
