@@ -7,6 +7,9 @@ public class SwipeballConstants {
 
 	public class GameObjectNames
 	{
+		// Present in every level
+		public const string Canvas = "Canvas";
+
 		// Names of entities in the game
 		public class Game
 		{
@@ -68,13 +71,51 @@ public class SwipeballConstants {
 
 			public const string Credits = "Credits";
 
+			public const string Settings = "Settings";
+
 			public const string HighScore = "High Score";
 
 			public const string Play = "Play";
 
 			public const string Title = "Title";
 
+			public const string Greeting = "Greeting";
+
+			public const string Leaderboard = "Leaderboard";
+
+			public const string ProfilePicture = "Profile Picture";
+		}
+
+		public class Settings
+		{
+			public const string Title = "Title";
+
+			public const string MainMenu = "Main Menu";
+
 			public const string Sound = "Sound";
+
+			public const string SyncWithFacebook = "Sync With Facebook";
+		}
+
+		public class Leaderboard
+		{
+			public const string Title = "Title";
+
+			public const string MainMenu = "Main Menu";
+
+			public const string LeaderboardPanel = "Leaderboard Panel";
+
+			public const string UserList = "User List";
+
+			public const string ListItem = "List Item";
+
+			public const string Picture = "Picture";
+
+			public const string Name = "Name";
+
+			public const string Score = "Score";
+
+			public const string LeaderboardEffects = "Leaderboard Effects";
 		}
 
 		public class ObjectTags
@@ -88,6 +129,11 @@ public class SwipeballConstants {
 
 	}
 
+	public class FacebookConstants
+	{
+		public const string LoggedInUserId = "me";
+	}
+
 	public class Effects
 	{
 		public const float RespawnLightRangeMagnify = 2.0f;
@@ -96,7 +142,11 @@ public class SwipeballConstants {
 
 		public const float GameStartAnimationDuration = 2.0f;
 
+		public const float SyncedMessageDuration = 2.0f;
+
 		public const float LightIntensity = 2.5f;
+
+		public const float ProfilePictureSize = 50.0f;
 
 		public const string LowPowerSound = "Sounds/SFX/LowPower.wav";
 
@@ -153,7 +203,11 @@ public class SwipeballConstants {
 
 		public const string Credits = "People";
 
-		public const string NewHighScore = "New High Score!";
+		public const string Settings = "Settings";
+
+		public const string NewHighScore = "New High Score";
+
+		public const string YouBeatSomeone = "You Beat ";
 
 		public const string Level = "Level ";
 
@@ -161,9 +215,23 @@ public class SwipeballConstants {
 
 		public const string Sound = "Sound ";
 
+		public const string SyncWithFacebook = "Sync With Facebook ";
+
 		public const string On = "On";
 
 		public const string Off = "Off";
+
+		public const string OfflineName = "Offline ";
+
+		public const string ConnectToFacebook = "Connect To\nFacebook";
+
+		public const string Disconnect = "Disconnect";
+
+		public const string Leaderboard = "Leaderboard";
+
+		public const string Synced = "Synced";
+
+		public const string User = "User";
 
 		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n";
@@ -231,6 +299,10 @@ public class SwipeballConstants {
 		public const string Instructions = "Instructions";
 
 		public const string Credits = "Credits";
+
+		public const string Settings = "Settings";
+
+		public const string Leaderboard = "Leaderboard";
 	}
 
 	public class FileSystem

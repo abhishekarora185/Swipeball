@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{710CAF66-2E45-8776-B669-CF00316513E7}") = "Swipeball", "Assembly-CSharp.csproj", "{C50D1313-AB41-7A1F-EA85-F4C12B99C3D4}"
 EndProject
+Project("{710CAF66-2E45-8776-B669-CF00316513E7}") = "Swipeball", "Assembly-CSharp-Editor.csproj", "{B047A1E2-F0A6-62E9-AB2E-D6CDCDD4C4A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,11 +15,15 @@ Global
 		{C50D1313-AB41-7A1F-EA85-F4C12B99C3D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C50D1313-AB41-7A1F-EA85-F4C12B99C3D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C50D1313-AB41-7A1F-EA85-F4C12B99C3D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B047A1E2-F0A6-62E9-AB2E-D6CDCDD4C4A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B047A1E2-F0A6-62E9-AB2E-D6CDCDD4C4A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B047A1E2-F0A6-62E9-AB2E-D6CDCDD4C4A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B047A1E2-F0A6-62E9-AB2E-D6CDCDD4C4A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																																																						GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																																																										GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

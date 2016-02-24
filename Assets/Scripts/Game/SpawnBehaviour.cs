@@ -41,7 +41,7 @@ public class SpawnBehaviour : MonoBehaviour {
 	void Start () {
 
 		// Set high framerate for iOS
-		if (Application.platform == RuntimePlatform.IPhonePlayer) 
+		if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android) 
 		{
 			Application.targetFrameRate = 60;
 		}
@@ -203,6 +203,7 @@ public class SpawnBehaviour : MonoBehaviour {
 				}
 
 				// Game over like a five-point palm exploding heart punch
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().ReassembleLeaderboardList();
 				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().SaveHighScore();
 				GameOver.CreateGameOverMenu();
 			}
