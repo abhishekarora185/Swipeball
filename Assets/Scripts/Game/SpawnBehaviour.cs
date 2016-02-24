@@ -203,6 +203,7 @@ public class SpawnBehaviour : MonoBehaviour {
 				}
 
 				// Game over like a five-point palm exploding heart punch
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().ReassembleLeaderboardList();
 				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().SaveHighScore();
 				GameOver.CreateGameOverMenu();
 			}

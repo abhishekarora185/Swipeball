@@ -15,9 +15,37 @@ public class FacebookSession {
 	// Store user ids in order as retrieved from facebook
 	public static List<string> leaderboardUserIdsSorted;
 
-	// The user id of the last fetched profile picture
-	// Global variable needed for caching the Texture since callback for profile picture retrieval does not have userid in context
-	private static string lastRetrievedProfilePicture = string.Empty;
+	public static void ClearCache()
+	{
+		user = null;
+		userFriends = null;
+		leaderboardUserIdsSorted = null;
+	}
+
+	public static bool IsLeaderboardReady()
+	{
+		bool isReady = true;
+
+		if (user != null && leaderboardUserIdsSorted != null && userFriends != null)
+		{
+			foreach (string userId in leaderboardUserIdsSorted)
+			{
+				if (!user.ContainsKey("id") || !user.ContainsKey("name") || !userFriends.ContainsKey(userId)
+					|| userFriends[userId] == null
+					|| (!userFriends[userId].ContainsKey("name") || !userFriends[userId].ContainsKey("score") || !userFriends[userId].ContainsKey("picture")))
+				{
+					isReady = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			isReady = false;
+		}
+
+		return isReady;
+	}
 
 	public static void InitializeFacebook()
 	{
@@ -81,8 +109,7 @@ public class FacebookSession {
 		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 		{
 			GetUsername();
-			float profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().profilePictureSize;
-			GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId, profilePictureSize);
+			GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId);
 			GetHighScore();
 		}
 	}
@@ -109,7 +136,8 @@ public class FacebookSession {
 			}
 
 			Dictionary<string, object> fetchedUser = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
-			user["name"] = fetchedUser["name"];
+			// Use only the first name to avoid overflow
+			user["name"] = (fetchedUser["name"].ToString().IndexOf(" ") > -1)? fetchedUser["name"].ToString().Substring(0,fetchedUser["name"].ToString().IndexOf(" ")):fetchedUser["name"];
 			user["id"] = fetchedUser["id"];
 
 			if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
@@ -124,49 +152,45 @@ public class FacebookSession {
 		}
 	}
 
-	public static void GetProfilePicture(string userId, float profilePictureSize)
+	public static void GetProfilePicture(string userId)
 	{
 		if (FB.IsLoggedIn)
 		{
-			lastRetrievedProfilePicture = userId;
-			FB.API(userId + "/picture?type=square&height=" + profilePictureSize + "&width=" + profilePictureSize, HttpMethod.GET, GetProfilePictureCallback);
+			// Use an inline callback as the userId context is required
+			FB.API(userId + "/picture?type=square&height=" + SwipeballConstants.Effects.ProfilePictureSize + "&width=" + SwipeballConstants.Effects.ProfilePictureSize,
+				HttpMethod.GET, 
+				(IGraphResult result) => {
+					if (result.Error == null)
+					{
+						if (userId == SwipeballConstants.FacebookConstants.LoggedInUserId)
+						{
+							// Profile picture of the logged in user
+							user["picture"] = result.Texture;
+							if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
+							{
+								Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
+								profilePicture.enabled = true;
+								profilePicture.sprite = Sprite.Create(result.Texture, new Rect(0, 0, SwipeballConstants.Effects.ProfilePictureSize, SwipeballConstants.Effects.ProfilePictureSize), new Vector2());
+							}
+						}
+						else if (userId != string.Empty)
+						{
+							if (userFriends[userId] == null)
+							{
+								userFriends[userId] = new Dictionary<string, object>();
+							}
+							userFriends[userId]["picture"] = result.Texture;
+						}
+					}
+					else
+					{
+						Debug.Log(result.Error);
+					}
+				});
 		}
 		else
 		{
 			Debug.Log("Could not retrieve Facebook profile picture because the user is not logged in.");
-		}
-	}
-
-	private static void GetProfilePictureCallback(IGraphResult result)
-	{
-		if (result.Error == null)
-		{
-			if (lastRetrievedProfilePicture == SwipeballConstants.FacebookConstants.LoggedInUserId)
-			{
-				// Profile picture of the logged in user
-				user["picture"] = result.Texture;
-			}
-			else if(lastRetrievedProfilePicture != string.Empty)
-			{
-				// Profile picture of a friend of the logged in user
-				if(userFriends[lastRetrievedProfilePicture] == null)
-				{
-					userFriends[lastRetrievedProfilePicture] = new Dictionary<string, object>();
-				}
-				userFriends[lastRetrievedProfilePicture]["picture"] = result.Texture;
-			}
-			if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-			{
-				float profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().profilePictureSize;
-
-				Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
-				profilePicture.enabled = true;
-				profilePicture.sprite = Sprite.Create(result.Texture, new Rect(0, 0, profilePictureSize, profilePictureSize), new Vector2());
-			}
-		}
-		else
-		{
-			Debug.Log(result.Error);
 		}
 	}
 
@@ -232,6 +256,7 @@ public class FacebookSession {
 				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
 			}
 
+			FacebookSession.GetFriendScores();
 		}
 	}
 
@@ -253,13 +278,14 @@ public class FacebookSession {
 		{
 			var data = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
 			var scores = (List<object>)data["data"];
+			leaderboardUserIdsSorted = new List<string>();
 
 			if (scores != null)
 			{
 				foreach (Dictionary<string, object> userScore in scores)
 				{
 					var thisUser = (Dictionary<string, object>)userScore["user"];
-					string username = thisUser["name"].ToString();
+					string username = (thisUser["name"].ToString().IndexOf(" ") > -1) ? thisUser["name"].ToString().Substring(0, thisUser["name"].ToString().IndexOf(" ")) : thisUser["name"].ToString();
 					string userid = thisUser["id"].ToString();
 					string score = userScore["score"].ToString();
 
@@ -275,10 +301,8 @@ public class FacebookSession {
 					userFriends[userid]["name"] = username;
 					userFriends[userid]["score"] = score;
 
-					if(leaderboardUserIdsSorted == null)
-					{
-						leaderboardUserIdsSorted = new List<string>();
-					}
+					GetProfilePicture(userid);
+
 					leaderboardUserIdsSorted.Add(userid);
 				}
 			}
@@ -305,6 +329,9 @@ public class FacebookSession {
 		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
 		{
 			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().PrintSyncedMessage();
+			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
+
+			FacebookSession.GetFriendScores();
 		}
 	}
 

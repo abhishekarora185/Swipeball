@@ -69,6 +69,7 @@ public class SettingsBehaviour : MonoBehaviour {
 				SaveDataHandler.SetSyncWithFacebook(false);
 				syncWithFacebookButton.GetComponent<Text>().text = SwipeballConstants.UIText.SyncWithFacebook + SwipeballConstants.UIText.Off;
 				FB.LogOut();
+				FacebookSession.ClearCache();
 			}
 			else
 			{

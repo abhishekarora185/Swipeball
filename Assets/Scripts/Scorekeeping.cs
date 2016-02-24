@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 
 public class Scorekeeping : MonoBehaviour {
 
@@ -16,9 +17,6 @@ public class Scorekeeping : MonoBehaviour {
 	// Counts frames upto the scoreThreshold
 	private int scoreCounter;
 
-	// Has the high score been beaten?
-	private bool highScoreBeaten;
-
 	// Number of frames for which "New High Score!" will be visible
 	private int newHighScoreDisplayFrames;
 
@@ -27,6 +25,13 @@ public class Scorekeeping : MonoBehaviour {
 
 	// Number of frames for which "Lives : <x>" will be visible
 	private int livesDisplayFrames;
+
+	// A stack containing the user's friends' scores (if the leaderboard is ready) and the user's score
+	// Used to display congratulatory messages as and when someone's high score is beaten
+	private Stack<Dictionary<string, object>> leaderboardStack;
+
+	// A sub-list of FacebookSession.leaderboardUserIdsSorted that replaces it after game over
+	private List<string> newLeaderboardUserIdsSorted;
 
 	// The clip to be played when the high score is attained
 	private AudioClip highScoreClip;
@@ -38,11 +43,12 @@ public class Scorekeeping : MonoBehaviour {
 		
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
-		this.highScoreBeaten = false;
 		this.highScoreClip = (AudioClip) Resources.Load(SwipeballConstants.Effects.NewHighScoreSound);
 
 		GameObject scorekeeperObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
 		scorekeeperObject.GetComponent<Text>().enabled = true;
+
+		PrepareLeaderboardStack();
 
 		GameObject musicObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Music);
 
@@ -65,6 +71,46 @@ public class Scorekeeping : MonoBehaviour {
 		DisableTemporaryText();
 	}
 
+	// Initializes objects pertaining to leaderboard notifications
+	private void PrepareLeaderboardStack()
+	{
+		this.leaderboardStack = new Stack<Dictionary<string, object>>();
+
+		// Only try to add friends' scores if the leaderboard is ready
+
+		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FacebookSession.IsLeaderboardReady())
+		{
+			// Push the details of all users above or equal to the user's score onto the stack
+			this.newLeaderboardUserIdsSorted = FacebookSession.leaderboardUserIdsSorted;
+			int userPositionInLeaderboard = 0;
+
+			foreach (string userId in this.newLeaderboardUserIdsSorted)
+			{
+				// Create a new object to push that contains the user id
+				Dictionary<string, object> userStackObject = FacebookSession.userFriends[userId];
+				userStackObject["id"] = userId;
+
+				leaderboardStack.Push(userStackObject);
+
+				if (userId == FacebookSession.user["id"].ToString())
+				{
+					userPositionInLeaderboard = this.newLeaderboardUserIdsSorted.IndexOf(userId);
+					break;
+				}
+			}
+
+			this.newLeaderboardUserIdsSorted.RemoveAll(userId => this.newLeaderboardUserIdsSorted.IndexOf(userId) <= userPositionInLeaderboard);
+		}
+		else
+		{
+			// Push only the user's score into the stack; name will not be required, as the message is simply "New High Score!"
+			Dictionary<string, object> userStackObject = new Dictionary<string, object>();
+			userStackObject["score"] = SaveDataHandler.GetLoadedSaveData().highScore;
+
+			this.leaderboardStack.Push(userStackObject);
+		}
+	}
+
 	// Constantly increase the score by 1 after a certain period as a survival reward
 	private void UpdatePersistentScore()
 	{
@@ -84,13 +130,28 @@ public class Scorekeeping : MonoBehaviour {
 	// Checks the current score against the high score to see if it's been beaten, and displays "New High Score!" if it is so
 	private void CheckAgainstHighScore()
 	{
-		if (this.highScoreBeaten == false && this.score > SaveDataHandler.GetLoadedSaveData().highScore)
+		int dummyParseResult;
+
+		if (this.leaderboardStack != null && this.leaderboardStack.Count > 0 
+			&& this.leaderboardStack.Peek().ContainsKey("score") && System.Int32.TryParse(this.leaderboardStack.Peek()["score"].ToString(), out dummyParseResult) && this.score > System.Int32.Parse(this.leaderboardStack.Peek()["score"].ToString()))
 		{
-			this.highScoreBeaten = true;
 			this.newHighScoreDisplayFrames = 100;
 
 			GameObject newHighScoreObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.NewHighScore);
-			newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.NewHighScore;
+
+			if (!FacebookSession.IsLeaderboardReady() || (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FacebookSession.IsLeaderboardReady() && this.leaderboardStack.Peek()["id"].ToString() == FacebookSession.user["id"].ToString()))
+			{
+				this.leaderboardStack.Pop();
+				newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.NewHighScore;
+			}
+			else if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FacebookSession.IsLeaderboardReady())
+			{
+				Dictionary<string, object> userData = this.leaderboardStack.Pop();
+				// Push the user ID into its new position in the ordered leaderboard list
+				this.newLeaderboardUserIdsSorted.Insert(0, userData["id"].ToString());
+				// Display the name of your latest victim for glory's sake
+				newHighScoreObject.GetComponent<Text>().text = SwipeballConstants.UIText.YouBeatSomeone + userData["name"];
+			}
 			newHighScoreObject.GetComponent<Text>().enabled = true;
 
 			if(this.gameObject.GetComponent<AudioSource>() != null)
@@ -165,6 +226,27 @@ public class Scorekeeping : MonoBehaviour {
 			highScore = this.score;
 
 			SaveDataHandler.SetHighScore(highScore);
+		}
+	}
+
+	// Store the changed (if you played well enough) leaderboard list in the Facebook cache, if applicable
+	public void ReassembleLeaderboardList()
+	{
+		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FacebookSession.IsLeaderboardReady())
+		{
+			// After the game is over, the list's next slot is where this game's score goes
+			this.newLeaderboardUserIdsSorted.Insert(0, FacebookSession.user["id"].ToString());
+
+			// Update the leaderboard with the new score
+			FacebookSession.userFriends[FacebookSession.user["id"].ToString()]["score"] = this.score;
+
+			// Now, pop the rest of the stack onto the front of this list, and store it
+			while (this.leaderboardStack.Count > 0)
+			{
+				this.newLeaderboardUserIdsSorted.Insert(0, this.leaderboardStack.Pop()["id"].ToString());
+			}
+
+			FacebookSession.leaderboardUserIdsSorted = this.newLeaderboardUserIdsSorted;
 		}
 	}
 }

@@ -7,8 +7,6 @@ using Facebook.Unity;
 
 public class MainMenuBehaviour : MonoBehaviour {
 
-	// Vary the size of the profile picture depending on the scale of the UI
-	public float profilePictureSize;
 
 	// Render the cleaver with minimum required components at the center of the main menu
 	public GameObject cleaverDefinition;
@@ -21,9 +19,6 @@ public class MainMenuBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
-		// A square shape must be maintained for this object in the Unity Editor
-		this.profilePictureSize = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().rectTransform.rect.width;
-
 		UIOperations.SetTextProperties();
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Button>().enabled = false;
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Text>().enabled = false;
@@ -76,15 +71,18 @@ public class MainMenuBehaviour : MonoBehaviour {
 	{
 		// This will be shown if the user successfully logs in to Facebook
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().enabled = false;
-		if (FB.IsInitialized && FB.IsLoggedIn && (FacebookSession.user == null || !FacebookSession.user.ContainsKey("picture")))
+        if (FB.IsInitialized && FB.IsLoggedIn)
 		{
-			FacebookSession.GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId, this.profilePictureSize);
-		}
-		else if(FacebookSession.user != null && FacebookSession.user.ContainsKey("picture"))
-		{
-			Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
-			profilePicture.enabled = true;
-			profilePicture.sprite = Sprite.Create((Texture2D)FacebookSession.user["picture"], new Rect(0, 0, profilePictureSize, profilePictureSize), new Vector2());
+			if (FacebookSession.user != null && FacebookSession.user.ContainsKey("picture"))
+			{
+				Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
+				profilePicture.enabled = true;
+				profilePicture.sprite = Sprite.Create((Texture2D)FacebookSession.user["picture"], new Rect(0, 0, SwipeballConstants.Effects.ProfilePictureSize, SwipeballConstants.Effects.ProfilePictureSize), new Vector2());
+			}
+			else
+			{
+				FacebookSession.GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId);
+			}
 		}
 	}
 

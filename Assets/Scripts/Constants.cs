@@ -102,6 +102,20 @@ public class SwipeballConstants {
 			public const string Title = "Title";
 
 			public const string MainMenu = "Main Menu";
+
+			public const string LeaderboardPanel = "Leaderboard Panel";
+
+			public const string UserList = "User List";
+
+			public const string ListItem = "List Item";
+
+			public const string Picture = "Picture";
+
+			public const string Name = "Name";
+
+			public const string Score = "Score";
+
+			public const string LeaderboardEffects = "Leaderboard Effects";
 		}
 
 		public class ObjectTags
@@ -131,6 +145,8 @@ public class SwipeballConstants {
 		public const float SyncedMessageDuration = 2.0f;
 
 		public const float LightIntensity = 2.5f;
+
+		public const float ProfilePictureSize = 50.0f;
 
 		public const string LowPowerSound = "Sounds/SFX/LowPower.wav";
 
@@ -189,7 +205,9 @@ public class SwipeballConstants {
 
 		public const string Settings = "Settings";
 
-		public const string NewHighScore = "New High Score!";
+		public const string NewHighScore = "New High Score";
+
+		public const string YouBeatSomeone = "You Beat ";
 
 		public const string Level = "Level ";
 
