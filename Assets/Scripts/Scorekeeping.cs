@@ -91,7 +91,6 @@ public class Scorekeeping : MonoBehaviour {
 				userStackObject["id"] = userId;
 
 				leaderboardStack.Push(userStackObject);
-
 				if (userId == FacebookSession.user["id"].ToString())
 				{
 					userPositionInLeaderboard = this.newLeaderboardUserIdsSorted.IndexOf(userId);
@@ -237,8 +236,11 @@ public class Scorekeeping : MonoBehaviour {
 			// After the game is over, the list's next slot is where this game's score goes
 			this.newLeaderboardUserIdsSorted.Insert(0, FacebookSession.user["id"].ToString());
 
-			// Update the leaderboard with the new score
-			FacebookSession.userFriends[FacebookSession.user["id"].ToString()]["score"] = this.score;
+			// Update the leaderboard with the new high score, if any
+			if (this.score > SaveDataHandler.GetLoadedSaveData().highScore)
+			{
+				FacebookSession.userFriends[FacebookSession.user["id"].ToString()]["score"] = this.score + string.Empty;
+			}
 
 			// Now, pop the rest of the stack onto the front of this list, and store it
 			while (this.leaderboardStack.Count > 0)
