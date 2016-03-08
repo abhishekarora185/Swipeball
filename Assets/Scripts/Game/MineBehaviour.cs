@@ -18,8 +18,10 @@ public class MineBehaviour : MonoBehaviour {
 	private float explosionSensitivity;
 	// Indicates whether or not the mine has been killed
 	private bool isDead;
-	// The points obtained on destroying a mine
-	private int deathScore;
+	// Should near misses be rewarded at this moment or not?
+	private bool nearMissTriggered;
+	// If this mine is bumped into another by the ball, the additional collision should be rewarded
+	private bool bumped;
 
 	// Use this for initialization
 	void Start () {
@@ -28,7 +30,8 @@ public class MineBehaviour : MonoBehaviour {
 		this.repulsionSensitivity = 50.0f;
 		this.explosionSensitivity = 3.0f;
 		this.isDead = false;
-		this.deathScore = 30;
+		this.nearMissTriggered = false;
+		this.bumped = false;
 		this.DormantState();
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
@@ -40,6 +43,7 @@ public class MineBehaviour : MonoBehaviour {
 		PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
 		PerformMineUpdates();
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+		CheckForNearMiss();
 	}
 
 	// Periodically reorients the mines in the direction of the player and does some animations
@@ -50,7 +54,7 @@ public class MineBehaviour : MonoBehaviour {
 		if (!this.isDead && GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball) != null && !GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead && this.reorientCounter == 0)
 		{
 			// If this is the first time the mine is reorienting, turn the mine lethal
-			if(this.isLethal == false)
+			if(!this.isLethal)
 			{
 				if(this.gameObject.GetComponent<Light>() != null)
 				{
@@ -58,6 +62,13 @@ public class MineBehaviour : MonoBehaviour {
 					this.isLethal = true;
 				}
 			}
+
+			if (this.bumped)
+			{
+				// Revenge time
+				this.bumped = false;
+			}
+
 			// Reorient the mines in the direction of the ball
 			Vector3 ballPosition = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<Transform>().position;
 
@@ -69,17 +80,67 @@ public class MineBehaviour : MonoBehaviour {
 		}
 	}
 
+	private void CheckForNearMiss()
+	{
+		GameObject ball = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball);;
+		if (!this.isDead && ball != null && !ball.GetComponent<BallBehaviour>().isDead)
+		{
+			float distance = (ball.GetComponent<Transform>().position - this.gameObject.GetComponent<Transform>().position).magnitude;
+			float maxDistance = ball.GetComponent<Renderer>().bounds.size.x / 2 + this.gameObject.GetComponent<Renderer>().bounds.size.x;
+
+			// If the ball is close by and it hasn't triggered a near miss with this mine, set the near miss flag and wait for the ball to move away
+			// Only reward if the mine is in a lethal state
+			if (!this.nearMissTriggered && this.isLethal && distance <= maxDistance)
+			{
+				// The ball has come close, so set the near miss flag and let the user know he's being watched
+				this.nearMissTriggered = true;
+				if (this.gameObject.GetComponent<Light>() != null)
+				{
+					this.gameObject.GetComponent<Light>().range *= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
+				}
+			}
+			else if (this.nearMissTriggered && this.isLethal && distance > maxDistance)
+			{
+				// Reward the player for surviving the near miss and release the flag
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineNearMissed, this.gameObject.transform.position);
+				this.nearMissTriggered = false;
+				if (this.gameObject.GetComponent<Light>() != null)
+				{
+					this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
+				}
+			}
+		}
+	}
+
 	void OnCollisionEnter2D(Collision2D collision)
 	{
 		// Detect collisions with either the player's ball or the cleaver
-		if (this.isLethal && collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
+		if (collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBall();
+			if (this.isLethal)
+			{
+				// Game over!
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBall();
+			}
+			else
+			{
+				// Bump
+				StartCoroutine(SwipeballAnimation.PlayMineBumpAnimation(this.gameObject));
+				this.bumped = true;
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineBumped, this.gameObject.transform.position);
+			}
 		}
 
 		if (collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Mine)
 		{
 			// Colliding mines repel each other (they stick together if this is not done, and mines shouldn't behave like jelly)
+			if (collision.gameObject.GetComponent<MineBehaviour>().bumped)
+			{
+				// Reward the player for a chain bump
+				StartCoroutine(SwipeballAnimation.PlayMineBumpAnimation(this.gameObject));
+				this.bumped = true;
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineBumped, this.gameObject.transform.position);
+			}
 
 			collision.gameObject.GetComponent<Rigidbody2D>().AddForce(repulsionSensitivity * (collision.gameObject.transform.position - this.gameObject.transform.position));
 			this.gameObject.GetComponent<Rigidbody2D>().AddForce(repulsionSensitivity * (this.gameObject.transform.position - collision.gameObject.transform.position));
@@ -116,13 +177,15 @@ public class MineBehaviour : MonoBehaviour {
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().minesOnField--;
 
 			// Increase the score
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(this.deathScore);
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineKilled, this.gameObject.transform.position);
 		}
 	}
 
 	public void DormantState()
 	{
 		this.isLethal = false;
+		this.nearMissTriggered = false;
+		this.bumped = false;
 		if (this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Mine.Dormant;

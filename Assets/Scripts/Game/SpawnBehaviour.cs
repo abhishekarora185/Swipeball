@@ -159,7 +159,7 @@ public class SpawnBehaviour : MonoBehaviour {
 			this.wavesClearedSinceLastReward++;
 
 			GameObject scorekeeper = GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper);
-			scorekeeper.GetComponent<Scorekeeping>().level++;
+			scorekeeper.GetComponent<Scorekeeping>().LevelUp();
 			scorekeeper.GetComponent<Scorekeeping>().DisplayLevel();
 		}
 
@@ -263,9 +263,9 @@ public class SpawnBehaviour : MonoBehaviour {
 	// End the game if the laws of physX have been violated or if the laws of ball mortality have been tested
 	public void KillBall()
 	{
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
 		if (this.ballLives == 0)
 		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Cleaver).GetComponent<CleaverBehaviour>().powerLevel = 0;
 		}
 		StartCoroutine(SwipeballAnimation.PlayDeathAnimation(GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball)));

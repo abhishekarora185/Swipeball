@@ -133,6 +133,7 @@
      <Compile Include="Assets\Scripts\Game\GameOver.cs" />
      <Compile Include="Assets\Scripts\Game\MineBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\PhysicsHacks.cs" />
+     <Compile Include="Assets\Scripts\Game\ScoreIncrementBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\SpawnBehaviour.cs" />
      <Compile Include="Assets\Scripts\Game\WallBehaviour.cs" />
      <Compile Include="Assets\Scripts\Instructions\InstructionsBehaviour.cs" />

@@ -138,9 +138,15 @@ public class SwipeballConstants {
 	{
 		public const float RespawnLightRangeMagnify = 2.0f;
 
+		public const float MineDisturbLightRangeMagnify = 1.5f;
+
 		public const float DeathLightIntensityFade = 0.01f;
 
 		public const float GameStartAnimationDuration = 2.0f;
+
+		public const float MineBumpAnimationDuration = 0.5f;
+
+		public const float MineNearMissAnimationDuration = 0.5f;
 
 		public const float SyncedMessageDuration = 2.0f;
 
@@ -157,6 +163,19 @@ public class SwipeballConstants {
 		public const string NewHighScoreSound = "Sounds/SFX/Button_Press.wav";
 	}
 
+	public class ScoreIncrements
+	{
+		public static int Persistent = 1;
+
+		public static int MineKilled = 30;
+
+		public static int MineNearMissed = 5;
+
+		public static int MineBumped = 15;
+
+		public static int GameObjectAliveFrames = 1;
+	}
+
 	public class Colors
 	{
 		public class UI
@@ -164,6 +183,8 @@ public class SwipeballConstants {
 			public static Color NormalText = Color.white;
 
 			public static Color ButtonText = Color.cyan;
+
+			public static Color ScoreIncrementText = Color.white;
 		}
 
 		public class Cleaver

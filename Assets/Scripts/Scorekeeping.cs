@@ -7,9 +7,11 @@ using System.Collections.Generic;
 
 public class Scorekeeping : MonoBehaviour {
 
-	private int score;
+	public GameObject scoreIncrementDefinition;
 
-	public int level;
+	private int level;
+
+	private int score;
 
 	// The number of frames after which the score is increased by 1
 	private int scoreThreshold;
@@ -40,7 +42,7 @@ public class Scorekeeping : MonoBehaviour {
 	void Start () {
 		this.score = 0;
 		this.level = 1;
-		
+
 		this.scoreThreshold = 500;
 		this.scoreCounter = 0;
 		this.highScoreClip = (AudioClip) Resources.Load(SwipeballConstants.Effects.NewHighScoreSound);
@@ -119,7 +121,7 @@ public class Scorekeeping : MonoBehaviour {
 		{
 			if (this.scoreCounter == 0)
 			{
-				this.score++;
+				this.IncreaseScore(SwipeballConstants.ScoreIncrements.Persistent, GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).transform.position);
 			}
 			this.gameObject.GetComponent<Text>().text = this.score + string.Empty;
 		}
@@ -158,6 +160,11 @@ public class Scorekeeping : MonoBehaviour {
 				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.highScoreClip);
 			}
 		}
+	}
+
+	public void LevelUp()
+	{
+		this.level++;
 	}
 
 	public void DisplayLevel()
@@ -210,10 +217,15 @@ public class Scorekeeping : MonoBehaviour {
 		}
 	}
 
-	// Score increases triggered by other agents
-	public void IncreaseScore(int increasedScore)
+	// Score increments triggered by game objects; their positions are taken to determine where to display the score increment prefab
+	public void IncreaseScore(int increasedScore, Vector3 gameObjectPosition)
 	{
 		this.score += increasedScore;
+		GameObject scoreIncrement = Instantiate(this.scoreIncrementDefinition);
+		scoreIncrement.GetComponent<RectTransform>().position = Camera.main.WorldToScreenPoint(gameObjectPosition);
+		scoreIncrement.transform.SetParent(GameObject.Find(SwipeballConstants.GameObjectNames.Canvas).transform);
+		scoreIncrement.GetComponent<Text>().text = increasedScore + string.Empty;
+		scoreIncrement.GetComponent<Text>().color = SwipeballConstants.Colors.UI.ScoreIncrementText;
 	}
 
 	public void SaveHighScore()

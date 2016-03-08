@@ -137,7 +137,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
 			// Load the game after an encouraging animation
-			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver, SaveDataHandler.GetLoadedSaveData().soundEnabled));
+			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver));
 		} );
 
 	}

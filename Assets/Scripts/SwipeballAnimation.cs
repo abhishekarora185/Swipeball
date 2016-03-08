@@ -4,13 +4,13 @@ using UnityEngine.UI;
 
 public class SwipeballAnimation {
 
-	public static IEnumerator PlayGameStartAnimation(GameObject cleaver, bool soundEnabled)
+	public static IEnumerator PlayGameStartAnimation(GameObject cleaver)
 	{
 		// Make the cleaver turn green and rotate faster
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 20;
 		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 
-		if(soundEnabled && GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<AudioSource>() != null)
+		if(SaveDataHandler.GetLoadedSaveData().soundEnabled && GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<AudioSource>() != null)
 		{
 			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<AudioSource>().PlayOneShot(GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<AudioSource>().clip);
 		}
@@ -30,7 +30,27 @@ public class SwipeballAnimation {
 		// Provides enough time for the above animation to play
 		yield return new WaitForSeconds(ball.GetComponent<ParticleSystem>().duration);
 
-		ball.GetComponent<Light>().range /= SwipeballConstants.Effects.RespawnLightRangeMagnify;
+		if (ball != null)
+		{
+			ball.GetComponent<Light>().range /= SwipeballConstants.Effects.RespawnLightRangeMagnify;
+		}
+	}
+
+	public static IEnumerator PlayMineBumpAnimation(GameObject mine)
+	{
+		// The mine is confused
+		if (mine.GetComponent<Light>() != null)
+		{
+			mine.GetComponent<Light>().range *= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
+		}
+
+		yield return new WaitForSeconds(SwipeballConstants.Effects.MineBumpAnimationDuration);
+
+		// The mine is back to normal
+		if (mine!=null && mine.GetComponent<Light>() != null)
+		{
+			mine.GetComponent<Light>().range /= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
+		}
 	}
 	
 	public static IEnumerator PlayDeathAnimation(GameObject deadObject)
