@@ -171,7 +171,7 @@ public class SwipeballConstants {
 
 		public static int MineNearMissed = 5;
 
-		public static int MineBumped = 15;
+		public static int MineBumped = 50;
 
 		public static int GameObjectAliveFrames = 1;
 	}

@@ -224,6 +224,7 @@ public class Scorekeeping : MonoBehaviour {
 		GameObject scoreIncrement = Instantiate(this.scoreIncrementDefinition);
 		scoreIncrement.GetComponent<RectTransform>().position = Camera.main.WorldToScreenPoint(gameObjectPosition);
 		scoreIncrement.transform.SetParent(GameObject.Find(SwipeballConstants.GameObjectNames.Canvas).transform);
+		scoreIncrement.transform.localScale = Vector3.one;
 		scoreIncrement.GetComponent<Text>().text = increasedScore + string.Empty;
 		scoreIncrement.GetComponent<Text>().color = SwipeballConstants.Colors.UI.ScoreIncrementText;
 	}

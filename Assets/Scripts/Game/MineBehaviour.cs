@@ -99,15 +99,24 @@ public class MineBehaviour : MonoBehaviour {
 					this.gameObject.GetComponent<Light>().range *= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
 				}
 			}
-			else if (this.nearMissTriggered && this.isLethal && distance > maxDistance)
+			else if (this.isLethal && distance > maxDistance)
 			{
-				// Reward the player for surviving the near miss and release the flag
-				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineNearMissed, this.gameObject.transform.position);
-				this.nearMissTriggered = false;
-				if (this.gameObject.GetComponent<Light>() != null)
-				{
-					this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
-				}
+				NearMissEnd();
+			}
+		}
+	}
+
+	// A separate function since it will be called at two different points
+	private void NearMissEnd()
+	{
+		if (this.nearMissTriggered)
+		{
+			// Reward the player for surviving the near miss and release the flag
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().IncreaseScore(SwipeballConstants.ScoreIncrements.MineNearMissed, this.gameObject.transform.position);
+			this.nearMissTriggered = false;
+			if (this.gameObject.GetComponent<Light>() != null)
+			{
+				this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.MineDisturbLightRangeMagnify;
 			}
 		}
 	}
@@ -184,7 +193,7 @@ public class MineBehaviour : MonoBehaviour {
 	public void DormantState()
 	{
 		this.isLethal = false;
-		this.nearMissTriggered = false;
+		NearMissEnd();
 		this.bumped = false;
 		if (this.gameObject.GetComponent<Light>() != null)
 		{
