@@ -15,8 +15,6 @@ public class BallBehaviour : MonoBehaviour {
 	private Rigidbody2D ballBody;
 	// The start position of a swipe input
 	private Vector2 initialPosition;
-	// LineRenderer for drawing user input
-	private LineRenderer inputLineRenderer;
 
 	// Use this for initialization
 	void Start () {
@@ -25,7 +23,6 @@ public class BallBehaviour : MonoBehaviour {
 		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 		this.respawnPoint.z = 0;
 		this.isDead = false;
-		this.inputLineRenderer = this.gameObject.GetComponent<LineRenderer>();
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 	}
@@ -47,13 +44,12 @@ public class BallBehaviour : MonoBehaviour {
 			if (Input.GetKeyDown(KeyCode.Mouse0))
 			{
 				this.initialPosition = Input.mousePosition;
-				this.inputLineRenderer.SetPosition(0, initialPosition);
 			}
 
 			// While the user caresses the screen gently
 			if (Input.GetKey(KeyCode.Mouse0))
 			{
-				this.inputLineRenderer.SetPosition(1, Input.mousePosition);
+
 			}
 
 			// When the user is done with the screen for now
@@ -83,7 +79,6 @@ public class BallBehaviour : MonoBehaviour {
 			{
 				this.initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				this.ballBody.velocity = Vector3.zero;
-				this.inputLineRenderer.enabled = true;
 
 				// A rudimentary animation
 				if (this.gameObject.GetComponent<Light>() != null)
@@ -97,10 +92,7 @@ public class BallBehaviour : MonoBehaviour {
 				Vector2 finalPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				Vector2 dragDistance = finalPosition - this.initialPosition;
 
-				this.inputLineRenderer.SetPosition(0, initialPosition);
-				this.inputLineRenderer.SetPosition(1, finalPosition);
-
-				Vector2 forceVector = SwipeballConstants.Input.DragAndFollowInputSensitivity * dragDistance;
+				Vector2 forceVector = SwipeballConstants.Input.FollowSwipeInputSensitivity * dragDistance;
 
 				this.ballBody.AddForce(forceVector, ForceMode2D.Force);
 				PhysicsHacks.AddRetardingForce(this.ballBody);
@@ -119,7 +111,6 @@ public class BallBehaviour : MonoBehaviour {
 				{
 					this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.BallMoveLightRangeMagnify;
 				}
-				this.inputLineRenderer.enabled = false;
 			}
 		}
 	}

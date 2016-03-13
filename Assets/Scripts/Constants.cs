@@ -218,13 +218,6 @@ public class SwipeballConstants {
 
 			public static Color Particle2 = Color.yellow;
 		}
-
-		public class Ball
-		{
-			public static Color StartInputLine = Color.gray;
-
-			public static Color EndInputLine = Color.white;
-		}
 	}
 
 	public class UIText
@@ -374,7 +367,7 @@ public class SwipeballConstants {
 	{
 		public const float DragAndReleaseInputSensitivity = 1.0f;
 
-		public const float DragAndFollowInputSensitivity = 50.0f;
+		public const float FollowSwipeInputSensitivity = 70.0f;
 	}
 
 	public class PhysicsHacks
