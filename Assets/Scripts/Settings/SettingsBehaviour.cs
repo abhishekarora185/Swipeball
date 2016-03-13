@@ -85,5 +85,21 @@ public class SettingsBehaviour : MonoBehaviour {
 				}
 			}
 		});
+
+		GameObject controlModeButton = GameObject.Find(SwipeballConstants.GameObjectNames.Settings.ControlMode);
+		controlModeButton.GetComponent<Text>().text = SwipeballConstants.UIText.ControlModes + SwipeballConstants.UIText.ControlModeDisplayName[SaveDataHandler.GetLoadedSaveData().controlMode];
+		controlModeButton.GetComponent<Button>().onClick.AddListener(() =>
+		{
+			// Toggle control mode and save settings to file
+			if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.DragAndRelease)
+			{
+				SaveDataHandler.SetControlMode(SwipeballConstants.ControlMode.FollowSwipe);
+			}
+			else if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.FollowSwipe)
+			{
+				SaveDataHandler.SetControlMode(SwipeballConstants.ControlMode.DragAndRelease);
+			}
+			controlModeButton.GetComponent<Text>().text = SwipeballConstants.UIText.ControlModes + SwipeballConstants.UIText.ControlModeDisplayName[SaveDataHandler.GetLoadedSaveData().controlMode];
+		});
 	}
 }

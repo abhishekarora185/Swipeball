@@ -35,6 +35,12 @@ public class SaveDataHandler
 		SaveDataToStorage();
 	}
 
+	public static void SetControlMode(SwipeballConstants.ControlMode controlMode)
+	{
+		saveData.controlMode = controlMode;
+		SaveDataToStorage();
+	}
+
 	private static SaveData LoadDataFromStorage()
 	{
 		BinaryFormatter bf = new BinaryFormatter();
@@ -43,6 +49,7 @@ public class SaveDataHandler
 		saveData.highScore = 0;
 		saveData.soundEnabled = false;
 		saveData.syncWithFacebook = false;
+		saveData.controlMode = SwipeballConstants.ControlMode.DragAndRelease;
 
 		try
 		{
@@ -79,5 +86,7 @@ public class SaveData {
 	public bool soundEnabled;
 
 	public bool syncWithFacebook;
+
+	public SwipeballConstants.ControlMode controlMode;
 
 }

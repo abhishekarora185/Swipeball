@@ -9,25 +9,23 @@ public class BallBehaviour : MonoBehaviour {
 	public bool isDead;
 	// The last position of the ball, needed for raycasting
 	public Vector3 lastPosition;
-	// The multiplier to the force that user input adds to the ball
-	private float inputSensitivity;
 	// The point on the map where the ball respawns
 	private Vector3 respawnPoint;
 	// The physics body of the ball
 	private Rigidbody2D ballBody;
 	// The start position of a swipe input
 	private Vector2 initialPosition;
-	// The number of frames for which the finger is held down during a swipe
-	private int swipeframes;
+	// LineRenderer for drawing user input
+	private LineRenderer inputLineRenderer;
 
 	// Use this for initialization
 	void Start () {
 		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Ball;
-		this.inputSensitivity = 2.0f;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
 		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 		this.respawnPoint.z = 0;
 		this.isDead = false;
+		this.inputLineRenderer = this.gameObject.GetComponent<LineRenderer>();
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
 	}
@@ -41,39 +39,88 @@ public class BallBehaviour : MonoBehaviour {
 
 	private void UpdateMovementFromUserInput()
 	{
-		// Movement updates through user input
+		// Movement updates through user input, depending on the Control Mode setting
 
-		// When the user's finger embraces the screen
-		if (Input.GetKeyDown(KeyCode.Mouse0))
+		if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.DragAndRelease)
 		{
-			this.initialPosition = Input.mousePosition;
-			this.swipeframes = 0;
-		}
-
-		// While the user caresses the screen gently
-		if (Input.GetKey(KeyCode.Mouse0))
-		{
-			this.swipeframes++;
-		}
-
-		// When the user is done with the screen for now
-		if (Input.GetKeyUp(KeyCode.Mouse0))
-		{
-			Vector2 finalPosition = Input.mousePosition;
-			Vector2 dragDistance = finalPosition - this.initialPosition;
-
-			// Limit the input force by the average of the width and height
-			if(dragDistance.magnitude > (Screen.width + Screen.height) / 2)
+			// When the user's finger embraces the screen
+			if (Input.GetKeyDown(KeyCode.Mouse0))
 			{
-				dragDistance = (Screen.width + Screen.height) * dragDistance.normalized / 2;
+				this.initialPosition = Input.mousePosition;
+				this.inputLineRenderer.SetPosition(0, initialPosition);
 			}
 
-			Vector2 forceVector = this.inputSensitivity * dragDistance / 2;
+			// While the user caresses the screen gently
+			if (Input.GetKey(KeyCode.Mouse0))
+			{
+				this.inputLineRenderer.SetPosition(1, Input.mousePosition);
+			}
 
-			this.ballBody.velocity = Vector2.zero;
-			this.ballBody.AddForce(forceVector, ForceMode2D.Force);
+			// When the user is done with the screen for now
+			if (Input.GetKeyUp(KeyCode.Mouse0))
+			{
+				Vector2 finalPosition = Input.mousePosition;
+				Vector2 dragDistance = finalPosition - this.initialPosition;
 
-			PhysicsHacks.AddRetardingForce(this.ballBody);
+				Vector2 forceVector = SwipeballConstants.Input.DragAndReleaseInputSensitivity * dragDistance;
+
+				// Limit the input force by the average of the width and height
+				if (forceVector.magnitude > PhysicsHacks.MaximumForce())
+				{
+					forceVector = PhysicsHacks.MaximumForce() * forceVector.normalized;
+				}
+
+				this.ballBody.velocity = Vector2.zero;
+				this.ballBody.AddForce(forceVector, ForceMode2D.Force);
+
+				PhysicsHacks.AddRetardingForce(this.ballBody);
+			}
+		}
+		else if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.FollowSwipe)
+		{
+
+			if (Input.GetKeyDown(KeyCode.Mouse0))
+			{
+				this.initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				this.ballBody.velocity = Vector3.zero;
+				this.inputLineRenderer.enabled = true;
+
+				// A rudimentary animation
+				if (this.gameObject.GetComponent<Light>() != null)
+				{
+					this.gameObject.GetComponent<Light>().range *= SwipeballConstants.Effects.BallMoveLightRangeMagnify;
+				}
+			}
+
+			if (Input.GetKey(KeyCode.Mouse0))
+			{
+				Vector2 finalPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				Vector2 dragDistance = finalPosition - this.initialPosition;
+
+				this.inputLineRenderer.SetPosition(0, initialPosition);
+				this.inputLineRenderer.SetPosition(1, finalPosition);
+
+				Vector2 forceVector = SwipeballConstants.Input.DragAndFollowInputSensitivity * dragDistance;
+
+				this.ballBody.AddForce(forceVector, ForceMode2D.Force);
+				PhysicsHacks.AddRetardingForce(this.ballBody);
+
+				if (this.ballBody.velocity.magnitude > PhysicsHacks.MaximumVelocity())
+				{
+					this.ballBody.velocity = PhysicsHacks.MaximumVelocity() * this.ballBody.velocity.normalized;
+				}
+
+				this.initialPosition = finalPosition;
+			}
+
+			if (Input.GetKeyUp(KeyCode.Mouse0))
+			{
+				if (this.gameObject.GetComponent<Light>() != null)
+				{
+					this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.BallMoveLightRangeMagnify;
+				}
+				this.inputLineRenderer.enabled = false;
+			}
 		}
 	}
 

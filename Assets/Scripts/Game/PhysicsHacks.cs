@@ -13,4 +13,20 @@ public class PhysicsHacks {
 		}
 	}
 
+	// Get the maximum force allowed to be applied to the ball
+	// Used directly for input in Drag and Release mode
+	public static float MaximumForce()
+	{
+		float maximumForce = (Screen.width + Screen.height) / 2 * SwipeballConstants.Input.DragAndReleaseInputSensitivity;
+		return maximumForce;
+	}
+
+	// Get the maximum velocity the ball is allowed to have, calculated using v = u + at, where u = 0, a = MaximumForce() / mass of ball, t = physics engine compute time
+	// Used directly for input in Drag and Follow mode
+	public static float MaximumVelocity()
+	{
+		float maximumAcceleration = MaximumForce() / GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<Rigidbody2D>().mass;
+		float maximumVelocity = maximumAcceleration * Time.fixedDeltaTime;
+		return maximumVelocity;
+	}
 }

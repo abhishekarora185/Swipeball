@@ -1,9 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SwipeballConstants {
 
-	// Constants to be used throughout the project
+	// Constants/Enums to be used throughout the project
+
+	[System.Serializable]
+	public enum ControlMode
+	{
+		DragAndRelease,
+		FollowSwipe
+	}
 
 	public class GameObjectNames
 	{
@@ -95,6 +103,8 @@ public class SwipeballConstants {
 			public const string Sound = "Sound";
 
 			public const string SyncWithFacebook = "Sync With Facebook";
+
+			public const string ControlMode = "Control Mode";
 		}
 
 		public class Leaderboard
@@ -137,6 +147,8 @@ public class SwipeballConstants {
 	public class Effects
 	{
 		public const float RespawnLightRangeMagnify = 2.0f;
+
+		public const float BallMoveLightRangeMagnify = 1.1f;
 
 		public const float MineDisturbLightRangeMagnify = 1.5f;
 
@@ -206,6 +218,13 @@ public class SwipeballConstants {
 
 			public static Color Particle2 = Color.yellow;
 		}
+
+		public class Ball
+		{
+			public static Color StartInputLine = Color.gray;
+
+			public static Color EndInputLine = Color.white;
+		}
 	}
 
 	public class UIText
@@ -256,6 +275,13 @@ public class SwipeballConstants {
 
 		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n";
+
+		public const string ControlModes = "Control Mode ";
+
+		public static Dictionary<ControlMode, string> ControlModeDisplayName = new Dictionary<ControlMode,string> {
+			{ControlMode.FollowSwipe, "Follow Swipe"},
+			{ControlMode.DragAndRelease, "Drag and Release"}
+		};
 
 		public class GeneralInstructions
 		{
@@ -342,6 +368,13 @@ public class SwipeballConstants {
 		public const float GameHeightForOriginalSize = 480;
 
 		public const float CleaverScaleMultiplier = 2.5f;
+	}
+
+	public class Input
+	{
+		public const float DragAndReleaseInputSensitivity = 1.0f;
+
+		public const float DragAndFollowInputSensitivity = 50.0f;
 	}
 
 	public class PhysicsHacks
