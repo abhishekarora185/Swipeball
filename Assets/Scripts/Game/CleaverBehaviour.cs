@@ -38,14 +38,19 @@ public class CleaverBehaviour : MonoBehaviour {
 		this.highPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.HighPowerSound);
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.Cleaver);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		UpdatePowerLevel();
-		PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
+		{
+			UpdatePowerLevel();
+			PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+		}
 	}
 
 	private void UpdatePowerLevel()
@@ -72,6 +77,7 @@ public class CleaverBehaviour : MonoBehaviour {
 			{
 				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.mediumPowerClip);
 			}
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.CleaverYellow);
 		}
 		else if (this.powerLevel ==0 && this.gameObject.GetComponent<Light>() != null)
 		{
@@ -79,6 +85,10 @@ public class CleaverBehaviour : MonoBehaviour {
 			if (this.gameObject.GetComponent<AudioSource>() != null)
 			{
 				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.lowPowerClip);
+			}
+			if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead || GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().ballLives > 0)
+			{
+				GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.CleaverRed);
 			}
 		}
 	}

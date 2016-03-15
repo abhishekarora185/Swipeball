@@ -73,9 +73,12 @@ public class Scorekeeping : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		UpdatePersistentScore();
-		CheckAgainstHighScore();
-		DisableTemporaryText();
+		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
+		{
+			UpdatePersistentScore();
+			CheckAgainstHighScore();
+			DisableTemporaryText();
+		}
 	}
 
 	// Initializes objects pertaining to leaderboard notifications

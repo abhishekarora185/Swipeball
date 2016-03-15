@@ -15,6 +15,10 @@ public class BallBehaviour : MonoBehaviour {
 	private Rigidbody2D ballBody;
 	// The start position of a swipe input
 	private Vector2 initialPosition;
+	// Since the ball changes light range while detecting input, it is easy to get incorrect values from other sources manipulating it
+	// Thus, store both ranges adjustable by input
+	private float inputLightRangeOff;
+	private float inputLightRangeOn;
 
 	// Use this for initialization
 	void Start () {
@@ -23,15 +27,22 @@ public class BallBehaviour : MonoBehaviour {
 		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 		this.respawnPoint.z = 0;
 		this.isDead = false;
+		this.inputLightRangeOff = this.gameObject.GetComponent<Light>().range;
+		this.inputLightRangeOn = this.gameObject.GetComponent<Light>().range * SwipeballConstants.Effects.BallMoveLightRangeMagnify;
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.Ball);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		UpdateMovementFromUserInput();
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
+		{
+			UpdateMovementFromUserInput();
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+		}
 	}
 
 	private void UpdateMovementFromUserInput()
@@ -83,7 +94,7 @@ public class BallBehaviour : MonoBehaviour {
 				// A rudimentary animation
 				if (this.gameObject.GetComponent<Light>() != null)
 				{
-					this.gameObject.GetComponent<Light>().range *= SwipeballConstants.Effects.BallMoveLightRangeMagnify;
+					this.gameObject.GetComponent<Light>().range = this.inputLightRangeOn;
 				}
 			}
 
@@ -109,7 +120,7 @@ public class BallBehaviour : MonoBehaviour {
 			{
 				if (this.gameObject.GetComponent<Light>() != null)
 				{
-					this.gameObject.GetComponent<Light>().range /= SwipeballConstants.Effects.BallMoveLightRangeMagnify;
+					this.gameObject.GetComponent<Light>().range = this.inputLightRangeOff;
 				}
 			}
 		}

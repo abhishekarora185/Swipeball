@@ -68,8 +68,11 @@ public class SpawnBehaviour : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		CleanPositionList();
-		AddMines();
+		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
+		{
+			CleanPositionList();
+			AddMines();
+		}
 	}
 
 	private void AddBallAndCleaver()

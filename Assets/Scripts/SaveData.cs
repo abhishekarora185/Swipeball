@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Collections.Generic;
+using System;
+using System.Runtime.Serialization;
 
 
 public class SaveDataHandler
@@ -41,15 +44,21 @@ public class SaveDataHandler
 		SaveDataToStorage();
 	}
 
+	public static void AddViewedTutorial(SwipeballConstants.Tutorial tutorial)
+	{
+		saveData.viewedTutorials.Add(tutorial);
+		SaveDataToStorage();
+	}
+
+	public static void ClearViewedTutorials()
+	{
+		saveData.viewedTutorials.Clear();
+		SaveDataToStorage();
+	}
+
 	private static SaveData LoadDataFromStorage()
 	{
 		BinaryFormatter bf = new BinaryFormatter();
-
-		saveData = new SaveData();
-		saveData.highScore = 0;
-		saveData.soundEnabled = false;
-		saveData.syncWithFacebook = false;
-		saveData.controlMode = SwipeballConstants.ControlMode.DragAndRelease;
 
 		try
 		{
@@ -62,31 +71,64 @@ public class SaveDataHandler
 		}
 		catch (System.Exception e)
 		{
-			Debug.Log(e);
+			Debug.Log("Error occurred during deserialize: " + e);
+			saveData = new SaveData();
 		}
 		return saveData;
 	}
 
 	public static void SaveDataToStorage()
 	{
-		BinaryFormatter bf = new BinaryFormatter();
-		FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
+		try
+		{
+			BinaryFormatter bf = new BinaryFormatter();
+			FileStream file = File.Open(Application.persistentDataPath + SwipeballConstants.FileSystem.AppDataFileName, FileMode.OpenOrCreate);
 
-		bf.Serialize(file, saveData);
+			bf.Serialize(file, saveData);
 
-		file.Close();
+			file.Close();
+		}
+		catch (System.Exception e)
+		{
+			Debug.Log("Error occurred during serialize: " + e);
+		}
 	}
 }
 
-[System.Serializable]
+[Serializable]
 public class SaveData {
 
 	public int highScore;
 
 	public bool soundEnabled;
 
+	[OptionalField]
 	public bool syncWithFacebook;
 
+	[OptionalField]
 	public SwipeballConstants.ControlMode controlMode;
 
+	[OptionalField]
+	public List<SwipeballConstants.Tutorial> viewedTutorials;
+
+	public SaveData()
+	{
+		this.InitializeMembers();
+	}
+
+	private void InitializeMembers()
+	{
+		this.highScore = 0;
+		this.soundEnabled = false;
+		this.syncWithFacebook = false;
+		this.controlMode = SwipeballConstants.ControlMode.DragAndRelease;
+		this.viewedTutorials = new List<SwipeballConstants.Tutorial>();
+	}
+
+	// In case new save data properties have been added, the existing save file must be deserialized safely
+	[OnDeserializing]
+	private void SetValuesOnDeserialize(StreamingContext context)
+	{
+		this.InitializeMembers();
+	}
 }

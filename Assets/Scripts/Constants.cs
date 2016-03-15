@@ -13,6 +13,16 @@ public class SwipeballConstants {
 		FollowSwipe
 	}
 
+	[System.Serializable]
+	public enum Tutorial
+	{
+		Ball,
+		Mine,
+		Cleaver,
+		CleaverYellow,
+		CleaverRed
+	}
+
 	public class GameObjectNames
 	{
 		// Present in every level
@@ -43,6 +53,10 @@ public class SwipeballConstants {
 
 			public const string Lives = "Lives";
 
+			public const string TutorialBehaviour = "Tutorial";
+
+			public const string TutorialText = "Tutorial Text";
+
 			public const string NewHighScore = "New High Score";
 
 			public const string LevelUp = "Level Up";
@@ -54,6 +68,16 @@ public class SwipeballConstants {
 			public const string MainMenu = "Main Menu";
 
 			public const string Music = "Music";
+
+			// Each tutorial will have a primary game object to highlight during its run
+			public static Dictionary<Tutorial, string> PrimaryGameObjectNameForTutorial = new Dictionary<Tutorial, string>
+			{
+				{Tutorial.Ball, GameObjectNames.Game.Ball},
+				{Tutorial.Mine, GameObjectNames.Game.Mine},
+				{Tutorial.Cleaver, GameObjectNames.Game.Cleaver},
+				{Tutorial.CleaverYellow, GameObjectNames.Game.Cleaver},
+				{Tutorial.CleaverRed, GameObjectNames.Game.Cleaver}
+			};
 		}
 
 		public class InstructionsAndCredits
@@ -105,6 +129,8 @@ public class SwipeballConstants {
 			public const string SyncWithFacebook = "Sync With Facebook";
 
 			public const string ControlMode = "Control Mode";
+
+			public const string ResetTutorials = "Reset Tutorials";
 		}
 
 		public class Leaderboard
@@ -151,6 +177,8 @@ public class SwipeballConstants {
 		public const float BallMoveLightRangeMagnify = 1.1f;
 
 		public const float MineDisturbLightRangeMagnify = 1.5f;
+
+		public const float TutorialLightRangeMagnify = 1.5f;
 
 		public const float DeathLightIntensityFade = 0.01f;
 
@@ -250,6 +278,8 @@ public class SwipeballConstants {
 
 		public const string SyncWithFacebook = "Sync With Facebook ";
 
+		public const string ResetTutorials = "Reset Tutorials";
+
 		public const string On = "On";
 
 		public const string Off = "Off";
@@ -274,6 +304,17 @@ public class SwipeballConstants {
 		public static Dictionary<ControlMode, string> ControlModeDisplayName = new Dictionary<ControlMode,string> {
 			{ControlMode.FollowSwipe, "Follow Swipe"},
 			{ControlMode.DragAndRelease, "Drag and Release"}
+		};
+
+		public static Dictionary<Tutorial, string> TutorialText = new Dictionary<Tutorial, string>
+		{
+			{Tutorial.Ball, "Move the ball around using your finger."},
+			{Tutorial.Mine, "Bump into blue mines, avoid red ones."},
+			{Tutorial.Cleaver, "The Cleaver can be used to destroy red mines."},
+			{Tutorial.CleaverYellow, "The Cleaver has powered down!\n" +
+									  "Keep hitting it with the ball to energize it."},
+			{Tutorial.CleaverRed, "The Cleaver's power level is too low to destroy mines.\n" +
+								  "It must be recharged through impacts with the ball."}
 		};
 
 		public class GeneralInstructions

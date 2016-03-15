@@ -35,15 +35,20 @@ public class MineBehaviour : MonoBehaviour {
 		this.DormantState();
 
 		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.Mine);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
-		PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
-		PerformMineUpdates();
-		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
-		CheckForNearMiss();
+		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
+		{
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().entityPositions.Add(this.gameObject.transform.position);
+			PhysicsHacks.AddRetardingForce(this.gameObject.GetComponent<Rigidbody2D>());
+			PerformMineUpdates();
+			GameObject.Find(SwipeballConstants.GameObjectNames.Game.Spawner).GetComponent<SpawnBehaviour>().KillBallIfOutOfBounds(this.gameObject);
+			CheckForNearMiss();
+		}
 	}
 
 	// Periodically reorients the mines in the direction of the player and does some animations

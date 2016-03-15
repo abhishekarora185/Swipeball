@@ -101,5 +101,17 @@ public class SettingsBehaviour : MonoBehaviour {
 			}
 			controlModeButton.GetComponent<Text>().text = SwipeballConstants.UIText.ControlModes + SwipeballConstants.UIText.ControlModeDisplayName[SaveDataHandler.GetLoadedSaveData().controlMode];
 		});
+
+		GameObject resetTutorialsButton = GameObject.Find(SwipeballConstants.GameObjectNames.Settings.ResetTutorials);
+		resetTutorialsButton.SetActive(false);
+		if (SaveDataHandler.GetLoadedSaveData().viewedTutorials.Count > 0)
+		{
+			resetTutorialsButton.GetComponent<Text>().text = SwipeballConstants.UIText.ResetTutorials;
+			resetTutorialsButton.GetComponent<Button>().onClick.AddListener(() => {
+				SaveDataHandler.ClearViewedTutorials();
+				resetTutorialsButton.SetActive(false);
+			});
+			resetTutorialsButton.SetActive(true);
+		}
 	}
 }
