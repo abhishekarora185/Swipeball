@@ -10,9 +10,9 @@ public class CreditsBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		this.title = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.Title);
-		this.paragraph = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.Paragraph);
-		this.mainMenu = GameObject.Find(SwipeballConstants.GameObjectNames.InstructionsAndCredits.MainMenu);
+		this.title = GameObject.Find(SwipeballConstants.GameObjectNames.Credits.Title);
+		this.paragraph = GameObject.Find(SwipeballConstants.GameObjectNames.Credits.Paragraph);
+		this.mainMenu = GameObject.Find(SwipeballConstants.GameObjectNames.Credits.MainMenu);
 
 		this.title.GetComponent<Text>().text = SwipeballConstants.UIText.Credits;
 		this.paragraph.GetComponent<Text>().text = SwipeballConstants.UIText.CreditsText;

@@ -80,17 +80,11 @@ public class SwipeballConstants {
 			};
 		}
 
-		public class InstructionsAndCredits
+		public class Credits
 		{
 			public const string Title = "Title";
 			
 			public const string Paragraph = "Paragraph";
-
-			public const string BallButton = "Ball Button";
-
-			public const string CleaverButton = "Cleaver Button";
-
-			public const string MineButton = "Mine Button";
 
 			public const string MainMenu = "Main Menu";
 		}
@@ -260,8 +254,6 @@ public class SwipeballConstants {
 
 		public const string MainMenu = "Main\nMenu";
 
-		public const string Instructions = "Instructions";
-
 		public const string Credits = "People";
 
 		public const string Settings = "Settings";
@@ -296,7 +288,7 @@ public class SwipeballConstants {
 
 		public const string User = "User";
 
-		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n" +
+		public const string CreditsText = "Game & Music : Abhishek Arora [Surreal, Inc.]\n\n" +
 			"Font \"SavedByZero\" : Ray Larabie\n";
 
 		public const string ControlModes = "Control Mode ";
@@ -317,53 +309,6 @@ public class SwipeballConstants {
 								  "It must be recharged through impacts with the ball."}
 		};
 
-		public class GeneralInstructions
-		{
-			public const string Title = "Instructions";
-
-			public const string Paragraph = "Swipeball is a high score-based game.\n" +
-											"While minor points are awarded for survival,\n" +
-											"the major rewards come from destroying Mines.\n" +
-											"\n" +
-											"Select any of the below items to read further.";
-		}
-
-		public class BallInstructions
-		{
-			public const string Title = "The Ball";
-
-			public const string Paragraph = "The player controls the Ball.\n" +
-											"The length of the swipe input determines its speed.\n" +
-											"The player starts with one life, but is awarded more chances\n" + 
-											"as the game progresses.";
-		}
-
-		public class CleaverInstructions
-		{
-			public const string Title = "The Cleaver";
-
-			public const string Paragraph = "The Cleaver is the Ball's sole defense mechanism.\n" +
-											"It can destroy mines when they are not in their\n" + 
-											"dormant state. It, however, runs on a power source\n" + 
-											"that is constantly depleting, which can be replenished\n" + 
-											"through impacts from the Ball.\n" +
-											"When healthy, it gives off a green light that turns yellow\n" +
-											"at half-power.\n" +
-											"Once it turns red, it will no longer be able to destroy Mines,\n" +
-											"and must be recharged with powerful impacts.";
-		}
-
-		public class MineInstructions
-		{
-			public const string Title = "The Mines";
-
-			public const string Paragraph = "The Mines are out to destroy the Ball.\n" +
-											"They are harmless to the Ball\n" + 
-											"and invulnerable to the Cleaver\n" +
-											"when they first spawn in their dormant state,\n" + 
-											"taking on an innocent shade of cyan,\n" +
-											"but they soon turn a lethal red and must be destroyed.";
-		}
 	}
 
 	public class MaterialNames
@@ -376,8 +321,6 @@ public class SwipeballConstants {
 		public const string Game = "Game";
 
 		public const string MainMenu = "Main Menu";
-
-		public const string Instructions = "Instructions";
 
 		public const string Credits = "Credits";
 
@@ -396,8 +339,6 @@ public class SwipeballConstants {
 	public class Scaling
 	{
 		public const float MenuHeightForOriginalSize = 80;
-
-		public const float InstructionsHeightForOriginalSize = 160;
 
 		public const float GameHeightForOriginalSize = 480;
 

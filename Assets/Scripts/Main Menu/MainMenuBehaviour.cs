@@ -113,13 +113,6 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private void SetButtonListeners()
 	{
-		GameObject instructionsButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Instructions);
-		instructionsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Instructions;
-		instructionsButton.GetComponent<Button>().onClick.AddListener(() =>
-		{
-			Application.LoadLevel(SwipeballConstants.LevelNames.Instructions);
-		});
-
 		GameObject creditsButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Credits);
 		creditsButton.GetComponent<Text>().text = SwipeballConstants.UIText.Credits;
 		creditsButton.GetComponent<Button>().onClick.AddListener(() =>
