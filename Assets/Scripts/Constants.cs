@@ -110,6 +110,10 @@ public class SwipeballConstants {
 			public const string Leaderboard = "Leaderboard";
 
 			public const string ProfilePicture = "Profile Picture";
+
+			public const string Tip = "Tip";
+
+			public const string TipText = "Tip Text";
 		}
 
 		public class Settings
@@ -176,7 +180,9 @@ public class SwipeballConstants {
 
 		public const float DeathLightIntensityFade = 0.01f;
 
-		public const float GameStartAnimationDuration = 2.0f;
+		public const float GameStartAnimationDuration = 5.0f;
+
+		public const float GameStartGraphicFadeDuration = 2.0f;
 
 		public const float MineBumpAnimationDuration = 0.5f;
 
@@ -307,6 +313,27 @@ public class SwipeballConstants {
 									  "Keep hitting it with the ball to energize it."},
 			{Tutorial.CleaverRed, "The Cleaver's power level is too low to destroy mines.\n" +
 								  "It must be recharged through impacts with the ball."}
+		};
+
+		public static string[] TipText = {
+			"Try to hit mines as they spawn, when they're blue.\n" +
+			"But do so carefully - they will quickly turn lethal.",
+			"You can choose between two control modes in the Settings menu.",
+			"Compete with your Facebook friends by turning on\n" +
+			"Facebook sync in the Settings menu.",
+			"If you think you need to see the tutorials again,\n" +
+			"reset them in the Settings menu.",
+			"You are rewarded for every near miss with a mine.",
+			"The Cleaver continuously powers down, going from green to yellow to red.\n" +
+			"It cannot destroy mines when out of power.\n"+
+			"Keep knocking it around to charge it.",
+			"Destroying successive waves of mines grants you extra lives\n" +
+			"to keep you going.",
+			"Try to hide behind the cleaver while mines approach.\n" +
+			"They aren't smart enough to avoid its wrath.",
+			"Stay up to date with your Facebook friends' progress by viewing\n" +
+			"the Leaderboard.",
+			"You are periodically awarded a point as a survival reward."
 		};
 
 	}

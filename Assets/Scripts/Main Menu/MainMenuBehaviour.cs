@@ -13,12 +13,16 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	private GameObject cleaver;
 
+	// Indicates that the game start animation is playing
+	public bool gameStarted;
+
 	// The value of scale that needs to be applied to the decorative cleaver for the current screen size
 	private float objectScalingFactor;
 
 	// Use this for initialization
 	void Start () {
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.MenuHeightForOriginalSize;
+		this.gameStarted = false;
 		UIOperations.SetTextProperties();
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Button>().enabled = false;
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard).GetComponent<Text>().enabled = false;
@@ -71,7 +75,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 	{
 		// This will be shown if the user successfully logs in to Facebook
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().enabled = false;
-        if (FB.IsInitialized && FB.IsLoggedIn)
+		if (FB.IsInitialized && FB.IsLoggedIn)
 		{
 			if (FacebookSession.user != null && FacebookSession.user.ContainsKey("picture"))
 			{
@@ -130,6 +134,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 		GameObject playButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Play);
 		playButton.GetComponent<Button>().onClick.AddListener(() => { 
 			// Load the game after an encouraging animation
+			this.gameStarted = true;
 			StartCoroutine(SwipeballAnimation.PlayGameStartAnimation(this.cleaver));
 		} );
 
@@ -143,12 +148,21 @@ public class MainMenuBehaviour : MonoBehaviour {
 	public void EnableLeaderboard()
 	{
 		GameObject leaderboardButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard);
-		leaderboardButton.GetComponent<Button>().enabled = true;
-		leaderboardButton.GetComponent<Text>().enabled = true;
-		leaderboardButton.GetComponent<Button>().onClick.AddListener(() =>
+
+		// No point rendering if the user has already pressed Play
+		if (this.gameStarted)
 		{
-			Application.LoadLevel(SwipeballConstants.LevelNames.Leaderboard);
-		} );
+
+		}
+		else
+		{
+			leaderboardButton.GetComponent<Button>().enabled = true;
+			leaderboardButton.GetComponent<Text>().enabled = true;
+			leaderboardButton.GetComponent<Button>().onClick.AddListener(() =>
+			{
+				Application.LoadLevel(SwipeballConstants.LevelNames.Leaderboard);
+			});
+		}
 	}
 
 	public void StartGame()

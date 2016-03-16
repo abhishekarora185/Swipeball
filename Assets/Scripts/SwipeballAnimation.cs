@@ -6,6 +6,22 @@ public class SwipeballAnimation {
 
 	public static IEnumerator PlayGameStartAnimation(GameObject cleaver)
 	{
+		// Display a random tip
+		System.Random tipIndex = new System.Random();
+		string tipToShow = SwipeballConstants.UIText.TipText[tipIndex.Next(0, SwipeballConstants.UIText.TipText.Length)];
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Tip).GetComponent<Image>().enabled = true;
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.TipText).GetComponent<Text>().enabled = true;
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.TipText).GetComponent<Outline>().enabled = true;
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.TipText).GetComponent<Text>().text = tipToShow;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().CrossFadeAlpha(0.0f, SwipeballConstants.Effects.GameStartGraphicFadeDuration, false);
+
+		foreach (GameObject textGameObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
+		{
+			textGameObject.GetComponent<Text>().CrossFadeAlpha(0.0f, SwipeballConstants.Effects.GameStartGraphicFadeDuration, false);
+		}
+
 		// Make the cleaver turn green and rotate faster
 		cleaver.GetComponent<Rigidbody2D>().angularVelocity = 20;
 		cleaver.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
