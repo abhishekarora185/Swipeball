@@ -14,6 +14,7 @@ public class TutorialBehaviour : MonoBehaviour {
 
 	// The universal Tutorial UI
 	private GameObject tutorialText;
+	private GameObject tutorial;
 
 	void Start () {
 		this.InitializeTutorialElements();
@@ -43,6 +44,8 @@ public class TutorialBehaviour : MonoBehaviour {
 			// Add the viewed tutorial to the list of viewed tutorials in save data
 			SaveDataHandler.AddViewedTutorial(this.tutorialObject);
 
+			this.tutorial.GetComponent<Image>().enabled = false;
+
 			this.isTutorialPlaying = false;
 
 			Time.timeScale = 1;
@@ -56,6 +59,9 @@ public class TutorialBehaviour : MonoBehaviour {
 		this.tutorialText = GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialText);
 		this.tutorialText.GetComponent<Text>().text = string.Empty;
 
+		this.tutorial = GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour);
+		this.tutorial.GetComponent<Image>().enabled = false;
+
 		this.isTutorialPlaying = false;
 	}
 
@@ -68,7 +74,9 @@ public class TutorialBehaviour : MonoBehaviour {
 		else
 		{
 			this.isTutorialPlaying = true;
-		
+
+			this.tutorial.GetComponent<Image>().enabled = true;
+
 			Time.timeScale = 0;
 
 			if (SwipeballConstants.UIText.TutorialText.ContainsKey(this.tutorialObject))
