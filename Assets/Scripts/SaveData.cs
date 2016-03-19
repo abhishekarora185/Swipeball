@@ -68,6 +68,11 @@ public class SaveDataHandler
 				saveData = (SaveData)bf.Deserialize(file);
 				file.Close();
 			}
+			else
+			{
+				saveData = new SaveData();
+				SaveDataToStorage();
+			}
 		}
 		catch (System.Exception e)
 		{
