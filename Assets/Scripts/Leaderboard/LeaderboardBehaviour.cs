@@ -25,6 +25,11 @@ public class LeaderboardBehaviour : MonoBehaviour {
 		}
 	}
 
+	void OnApplicationQuit()
+	{
+		FacebookSession.TerminateNetworkThread();
+	}
+
 	private void SetButtonListeners()
 	{
 		GameObject mainMenuButton = GameObject.Find(SwipeballConstants.GameObjectNames.Leaderboard.MainMenu);

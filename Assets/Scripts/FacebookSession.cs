@@ -1,10 +1,14 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Facebook.Unity;
-using UnityEngine.UI;
+using System.Threading;
 
 public class FacebookSession {
+
+	// The parallel thread that handles network requests to the graph API so as to not block UI activity
+	private static Thread facebookSyncThread = null;
+	private static bool shouldThreadDoWork;
+	private static bool shouldThreadTerminate;
 
 	// Handles Facebook sessions and data transfer, and updates the UI with Facebook-relevant data
 	private static Dictionary<string, string> publishScoreDictionary;
@@ -15,11 +19,35 @@ public class FacebookSession {
 	// Store user ids in order as retrieved from facebook
 	public static List<string> leaderboardUserIdsSorted;
 
+	// bool values to indicate to a consumer that certain data is available for consumption
+	// It is the consumer's responsibility to set these back to false after use in case they keep checking these values
+	public static bool canHideUnity = false;
+	public static bool isGameShown;
+	public static bool canDisplayUsername = false;
+	public static bool canDisplayProfilePicture = false;
+	public static bool canEnableLeaderboard = false;
+
+	public static void InitializeOrResumeThread()
+	{
+		shouldThreadTerminate = false;
+		shouldThreadDoWork = true;
+		if (facebookSyncThread == null)
+		{
+			facebookSyncThread = new Thread(ThreadLoop);
+			facebookSyncThread.Start();
+		}
+	}
+
 	public static void ClearCache()
 	{
 		user = null;
 		userFriends = null;
 		leaderboardUserIdsSorted = null;
+	}
+
+	public static void TerminateNetworkThread()
+	{
+		shouldThreadTerminate = true;
 	}
 
 	public static bool IsLeaderboardReady()
@@ -62,6 +90,35 @@ public class FacebookSession {
 		}
 	}
 
+	private static void ThreadLoop()
+	{
+		while (!shouldThreadTerminate && !shouldThreadDoWork) ;
+
+		if (shouldThreadTerminate)
+		{
+			TerminateThread();
+		}
+		else
+		{
+			if (!FB.IsInitialized)
+			{
+				InitializeFacebook();
+			}
+			else if (!FB.IsLoggedIn)
+			{
+				ConnectToFacebookWithReadPermissions();
+			}
+
+			shouldThreadDoWork = false;
+			ThreadLoop();
+		}
+	}
+
+	private static void TerminateThread()
+	{
+		facebookSyncThread = null;
+	}
+
 	private static void InitCallback()
 	{
 		if (FB.IsInitialized)
@@ -76,18 +133,10 @@ public class FacebookSession {
 		}
 	}
 
-	private static void OnHideUnity(bool isGameShown)
+	private static void OnHideUnity(bool isGameShownFlag)
 	{
-		if (!isGameShown)
-		{
-			// Pause the game - we will need to hide
-			Time.timeScale = 0;
-		}
-		else
-		{
-			// Resume the game - we're getting focus again
-			Time.timeScale = 1;
-		}
+		canHideUnity = true;
+		isGameShown = isGameShownFlag;
 	}
 
 	public static void ConnectToFacebookWithReadPermissions()
@@ -106,12 +155,9 @@ public class FacebookSession {
 	{
 		// Handle post-login for different levels depending on what information they will need
 
-		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-		{
-			GetUsername();
-			GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId);
-			GetHighScore();
-		}
+		GetUsername();
+		GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId);
+		GetHighScore();
 	}
 
 	public static void GetUsername()
@@ -119,10 +165,6 @@ public class FacebookSession {
 		if (FB.IsLoggedIn)
 		{
 			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "?fields=name,id", HttpMethod.GET, GetUsernameCallback);
-		}
-		else
-		{
-			Debug.Log("Could not retrieve Facebook username because the user is not logged in.");
 		}
 	}
 
@@ -140,15 +182,7 @@ public class FacebookSession {
 			user["name"] = (fetchedUser["name"].ToString().IndexOf(" ") > -1)? fetchedUser["name"].ToString().Substring(0,fetchedUser["name"].ToString().IndexOf(" ")):fetchedUser["name"];
 			user["id"] = fetchedUser["id"];
 
-			if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-			{
-				GameObject greetingText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Greeting);
-				greetingText.GetComponent<Text>().text = user["name"] + " ";
-			}
-		}
-		else
-		{
-			Debug.Log(result.Error);
+			canDisplayUsername = true;
 		}
 	}
 
@@ -166,12 +200,7 @@ public class FacebookSession {
 						{
 							// Profile picture of the logged in user
 							user["picture"] = result.Texture;
-							if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-							{
-								Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
-								profilePicture.enabled = true;
-								profilePicture.sprite = Sprite.Create(result.Texture, new Rect(0, 0, SwipeballConstants.Effects.ProfilePictureSize, SwipeballConstants.Effects.ProfilePictureSize), new Vector2());
-							}
+							canDisplayProfilePicture = true;
 						}
 						else if (userId != string.Empty)
 						{
@@ -182,15 +211,7 @@ public class FacebookSession {
 							userFriends[userId]["picture"] = result.Texture;
 						}
 					}
-					else
-					{
-						Debug.Log(result.Error);
-					}
 				});
-		}
-		else
-		{
-			Debug.Log("Could not retrieve Facebook profile picture because the user is not logged in.");
 		}
 	}
 
@@ -199,10 +220,6 @@ public class FacebookSession {
 		if (FB.IsLoggedIn)
 		{
 			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores?fields=score,application", HttpMethod.GET, GetHighScoreCallback);
-		}
-		else
-		{
-			Debug.Log("Could not retrieve Facebook score because the user is not logged in.");
 		}
 	}
 
@@ -249,12 +266,7 @@ public class FacebookSession {
 			// Save the remote high score locally and display it, if necessary
 			SaveDataHandler.SetHighScore(thisAppScore);
 
-			if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-			{
-				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + SaveDataHandler.GetLoadedSaveData().highScore;
-				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().PrintSyncedMessage();
-				GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
-			}
+			canEnableLeaderboard = true;
 
 			FacebookSession.GetFriendScores();
 		}
@@ -265,10 +277,6 @@ public class FacebookSession {
 		if (FB.IsLoggedIn)
 		{
 			FB.API(FB.AppId + "/scores", HttpMethod.GET, GetFriendScoresCallback);
-		}
-		else
-		{
-			Debug.Log("Could not retrieve friends' scores because the user is not logged in.");
 		}
 	}
 
@@ -307,32 +315,20 @@ public class FacebookSession {
 				}
 			}
 		}
-		else
-		{
-			Debug.Log(result.Error);
-		}
 	}
 
 	private static void ConnectWithPublishPermissionsCallback(ILoginResult result)
 	{
 		// Handle post-login for different levels depending on what information they will need to post
 
-		if (Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-		{
-			// Post high score
-			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores", HttpMethod.POST, ScorePublishCallback, publishScoreDictionary);
-		}
+		// Post high score
+		FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores", HttpMethod.POST, ScorePublishCallback, publishScoreDictionary);
 	}
 
 	private static void ScorePublishCallback(IGraphResult result)
 	{
-		if(Application.loadedLevelName == SwipeballConstants.LevelNames.MainMenu)
-		{
-			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().PrintSyncedMessage();
-			GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.MenuEffects).GetComponent<MainMenuBehaviour>().EnableLeaderboard();
-
-			FacebookSession.GetFriendScores();
-		}
+		canEnableLeaderboard = true;
+		FacebookSession.GetFriendScores();
 	}
 
 }

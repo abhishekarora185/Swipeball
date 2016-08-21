@@ -25,5 +25,10 @@ public class CreditsBehaviour : MonoBehaviour {
 			Application.LoadLevel(SwipeballConstants.LevelNames.MainMenu);
 		});
 	}
+
+	void OnApplicationQuit()
+	{
+		FacebookSession.TerminateNetworkThread();
+	}
 	
 }

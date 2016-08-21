@@ -75,6 +75,11 @@ public class SpawnBehaviour : MonoBehaviour {
 		}
 	}
 
+	void OnApplicationQuit()
+	{
+		FacebookSession.TerminateNetworkThread();
+	}
+
 	private void AddBallAndCleaver()
 	{
 		this.ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));

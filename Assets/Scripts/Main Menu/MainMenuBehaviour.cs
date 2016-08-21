@@ -34,18 +34,40 @@ public class MainMenuBehaviour : MonoBehaviour {
 		SetButtonListeners();
 	}
 
+	void Update()
+	{
+		// Update callback only handles the results of Facebook sync callbacks, since network requests are made on another thread that doesn't use the Unity API
+		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook)
+		{
+			if (FacebookSession.canHideUnity)
+			{
+				this.HideUnity();
+			}
+			if (FacebookSession.canDisplayUsername)
+			{
+				this.DisplayUsername();
+			}
+			if (FacebookSession.canDisplayProfilePicture)
+			{
+				this.DisplayProfilePicture();
+			}
+			if (FacebookSession.canEnableLeaderboard)
+			{
+				this.EnableLeaderboard();
+			}
+		}
+	}
+
+	void OnApplicationQuit()
+	{
+		FacebookSession.TerminateNetworkThread();
+	}
+
 	private void TryFacebookLogin()
 	{
 		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook)
 		{
-			if (!FB.IsInitialized)
-			{
-				FacebookSession.InitializeFacebook();
-			}
-			else if (!FB.IsLoggedIn)
-			{
-				FacebookSession.ConnectToFacebookWithReadPermissions();
-			}
+			FacebookSession.InitializeOrResumeThread();
 		}
 	}
 
@@ -145,16 +167,22 @@ public class MainMenuBehaviour : MonoBehaviour {
 		StartCoroutine(SwipeballAnimation.PrintSyncedMessage());
 	}
 
-	public void EnableLeaderboard()
+	public void StartGame()
 	{
+		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
+	}
+
+	private void EnableLeaderboard()
+	{
+		FacebookSession.canEnableLeaderboard = false;
+
+		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.HighScore + SaveDataHandler.GetLoadedSaveData().highScore;
+		this.PrintSyncedMessage();
+
 		GameObject leaderboardButton = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Leaderboard);
 
 		// No point rendering if the user has already pressed Play
-		if (this.gameStarted)
-		{
-
-		}
-		else
+		if (!this.gameStarted)
 		{
 			leaderboardButton.GetComponent<Button>().enabled = true;
 			leaderboardButton.GetComponent<Text>().enabled = true;
@@ -165,9 +193,35 @@ public class MainMenuBehaviour : MonoBehaviour {
 		}
 	}
 
-	public void StartGame()
+	private void HideUnity()
 	{
-		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
+		FacebookSession.canHideUnity = false;
+		if (!FacebookSession.isGameShown)
+		{
+			// Pause the game - we will need to hide
+			Time.timeScale = 0;
+		}
+		else
+		{
+			// Resume the game - we're getting focus again
+			Time.timeScale = 1;
+		}
+	}
+
+	private void DisplayUsername()
+	{
+		FacebookSession.canDisplayUsername = false;
+		GameObject greetingText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.Greeting);
+		greetingText.GetComponent<Text>().text = FacebookSession.user["name"] + " ";
+	}
+
+	private void DisplayProfilePicture()
+	{
+		FacebookSession.canDisplayProfilePicture = false;
+
+		Image profilePicture = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>();
+		profilePicture.enabled = true;
+		profilePicture.sprite = Sprite.Create((Texture2D)FacebookSession.user["picture"], new Rect(0, 0, SwipeballConstants.Effects.ProfilePictureSize, SwipeballConstants.Effects.ProfilePictureSize), new Vector2());
 	}
 
 }

@@ -18,6 +18,11 @@ public class SettingsBehaviour : MonoBehaviour {
 	
 	}
 
+	void OnApplicationQuit()
+	{
+		FacebookSession.TerminateNetworkThread();
+	}
+
 	private void SetButtonListeners()
 	{
 		GameObject mainMenuButton = GameObject.Find(SwipeballConstants.GameObjectNames.Settings.MainMenu);
@@ -70,19 +75,13 @@ public class SettingsBehaviour : MonoBehaviour {
 				syncWithFacebookButton.GetComponent<Text>().text = SwipeballConstants.UIText.SyncWithFacebook + SwipeballConstants.UIText.Off;
 				FB.LogOut();
 				FacebookSession.ClearCache();
+				FacebookSession.TerminateNetworkThread();
 			}
 			else
 			{
 				SaveDataHandler.SetSyncWithFacebook(true);
 				syncWithFacebookButton.GetComponent<Text>().text = SwipeballConstants.UIText.SyncWithFacebook + SwipeballConstants.UIText.On;
-				if(!FB.IsInitialized)
-				{
-					FacebookSession.InitializeFacebook();
-				}
-				else if(!FB.IsLoggedIn)
-				{
-					FacebookSession.ConnectToFacebookWithReadPermissions();
-				}
+				FacebookSession.InitializeOrResumeThread();
 			}
 		});
 
