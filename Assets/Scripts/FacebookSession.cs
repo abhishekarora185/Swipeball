@@ -94,11 +94,7 @@ public class FacebookSession {
 	{
 		while (!shouldThreadTerminate && !shouldThreadDoWork) ;
 
-		if (shouldThreadTerminate)
-		{
-			TerminateThread();
-		}
-		else
+		if (!shouldThreadTerminate)
 		{
 			if (!FB.IsInitialized)
 			{
@@ -112,11 +108,6 @@ public class FacebookSession {
 			shouldThreadDoWork = false;
 			ThreadLoop();
 		}
-	}
-
-	private static void TerminateThread()
-	{
-		facebookSyncThread = null;
 	}
 
 	private static void InitCallback()
