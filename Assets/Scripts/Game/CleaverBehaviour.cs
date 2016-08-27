@@ -1,24 +1,19 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the Cleaver, which the Ball can employ to destroy Mines, in the Game level
+ * */
+
+using UnityEngine;
 using System.Collections;
 
 public class CleaverBehaviour : MonoBehaviour {
 
 	// Handles cleaver behaviour
 
-	// The "battery" level of the cleaver, on whose progressive depletion it becomes sluggish and loses its capability to destroy mines
+	// The "battery" level of the cleaver, on whose depletion it becomes sluggish and loses its capability to destroy mines
 	public int powerLevel;
-	// The maximum battery level of the cleaver
-	public int maxPower;
-	// The last position of the cleaver, needed for raycasting
-	public Vector3 lastPosition;
 	// The initial mass of the cleaver
 	private float initialMass;
-	// The maximum mass that can be added to the cleaver through power drain
-	private float maxAdditionalMass;
-	// The multiplier to the power restored by an impact from the ball
-	private float chargeSensitivity;
-	// The multiplier to the force which prevents the cleaver from sticking to walls
-	private float repulsionSensitivity;
 	// audio clips to be played at different power levels
 	private AudioClip lowPowerClip;
 	private AudioClip mediumPowerClip;
@@ -27,17 +22,13 @@ public class CleaverBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Cleaver;
-		this.maxPower = 5000;
-		this.powerLevel = maxPower;
+		this.powerLevel = SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower;
 		this.initialMass = this.gameObject.GetComponent<Rigidbody2D>().mass;
-		this.maxAdditionalMass = 3;
-		this.chargeSensitivity = 20.0f;
-		this.repulsionSensitivity = 50.0f;
 		this.lowPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.LowPowerSound);
 		this.mediumPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.MediumPowerSound);
 		this.highPowerClip = (AudioClip)Resources.Load(SwipeballConstants.Effects.HighPowerSound);
 
-		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+		this.gameObject.tag = SwipeballConstants.GameObjectNames.GameObjectTags.ActiveEntityTag;
 
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.Cleaver);
 	}
@@ -59,10 +50,10 @@ public class CleaverBehaviour : MonoBehaviour {
 		if(this.powerLevel > 0)
 		{
 			this.powerLevel--;
-			this.gameObject.GetComponent<Rigidbody2D>().mass = this.initialMass + ((this.maxPower - this.powerLevel) / this.maxPower) * this.maxAdditionalMass;
+			this.gameObject.GetComponent<Rigidbody2D>().mass = this.initialMass + ((SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower - this.powerLevel) / SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower) * SwipeballConstants.GameObjectQuantities.Cleaver.MaxAdditionalMass;
 		}
-
-		if(this.powerLevel > this.maxPower/2 && this.gameObject.GetComponent<Light>() != null)
+		// High Power
+		if(this.powerLevel > SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower/2 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.HighPower;
 			if(this.gameObject.GetComponent<AudioSource>() != null)
@@ -70,7 +61,8 @@ public class CleaverBehaviour : MonoBehaviour {
 				this.gameObject.GetComponent<AudioSource>().PlayOneShot(this.highPowerClip);
 			}
 		}
-		else if (this.powerLevel > 0 && this.powerLevel <= this.maxPower / 2 && this.gameObject.GetComponent<Light>() != null)
+		// Medium Power
+		else if (this.powerLevel > 0 && this.powerLevel <= SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower / 2 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.LowPower;
 			if (this.gameObject.GetComponent<AudioSource>() != null)
@@ -79,6 +71,7 @@ public class CleaverBehaviour : MonoBehaviour {
 			}
 			GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.CleaverYellow);
 		}
+		// Low Power
 		else if (this.powerLevel ==0 && this.gameObject.GetComponent<Light>() != null)
 		{
 			this.gameObject.GetComponent<Light>().color = SwipeballConstants.Colors.Cleaver.NoPower;
@@ -93,23 +86,25 @@ public class CleaverBehaviour : MonoBehaviour {
 		}
 	}
 
+	// Unity callback for collision handling
 	void OnCollisionEnter2D(Collision2D collision)
 	{
+		// Collisions with the walls
 		if(collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.VerticalWalls || collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.HorizontalWalls)
 		{
 			// In order to make sure the cleaver never gets stuck to a wall, we will repel it with a force proportional to its mass whenever it comes in contact with one
-			this.gameObject.GetComponent<Rigidbody2D>().AddForce(this.repulsionSensitivity * this.gameObject.GetComponent<Rigidbody2D>().mass * (this.gameObject.transform.position - new Vector3 (collision.contacts[0].point.x, collision.contacts[0].point.y, 0.0f)).normalized);
+			this.gameObject.GetComponent<Rigidbody2D>().AddForce(SwipeballConstants.GameObjectQuantities.Cleaver.RepulsionSensitivity * this.gameObject.GetComponent<Rigidbody2D>().mass * (this.gameObject.transform.position - new Vector3 (collision.contacts[0].point.x, collision.contacts[0].point.y, 0.0f)).normalized);
 		}
-		
+		// Collisions with the player's Ball
 		if(collision.gameObject.name == SwipeballConstants.GameObjectNames.Game.Ball)
 		{
 			// Charge power according to the relative velocity of impact
-			this.powerLevel = (this.powerLevel + (int)(this.chargeSensitivity * collision.relativeVelocity.magnitude));
-			if(this.powerLevel > this.maxPower)
+			this.powerLevel = (this.powerLevel + (int)(SwipeballConstants.GameObjectQuantities.Cleaver.ChargeSensitivity * collision.relativeVelocity.magnitude));
+			if(this.powerLevel > SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower)
 			{
-				this.powerLevel = this.maxPower;
+				this.powerLevel = SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower;
 			}
-			this.gameObject.GetComponent<Rigidbody2D>().mass = this.initialMass + ((this.maxPower - this.powerLevel) / this.maxPower) * this.maxAdditionalMass;
+			this.gameObject.GetComponent<Rigidbody2D>().mass = this.initialMass + ((SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower - this.powerLevel) / SwipeballConstants.GameObjectQuantities.Cleaver.MaxPower) * SwipeballConstants.GameObjectQuantities.Cleaver.MaxAdditionalMass;
 		}
 	}
 }

@@ -1,4 +1,10 @@
-﻿using System.Collections;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the helper class that handles all interaction with Facebook:
+ * the names, profile pictures and scores of the user and his/her friends who are also playing
+ * */
+
+using System.Collections;
 using System.Collections.Generic;
 using Facebook.Unity;
 using System.Threading;
@@ -27,6 +33,7 @@ public class FacebookSession {
 	public static bool canDisplayProfilePicture = false;
 	public static bool canEnableLeaderboard = false;
 
+	// Start/Resume the thread that executes all remote operations so as to not block the UI thread
 	public static void InitializeOrResumeThread()
 	{
 		shouldThreadTerminate = false;
@@ -38,6 +45,7 @@ public class FacebookSession {
 		}
 	}
 
+	// Clear all stored session data
 	public static void ClearCache()
 	{
 		user = null;
@@ -50,6 +58,7 @@ public class FacebookSession {
 		shouldThreadTerminate = true;
 	}
 
+	// If all information that the leaderboard needs is available, this returns true
 	public static bool IsLeaderboardReady()
 	{
 		bool isReady = true;
@@ -84,7 +93,7 @@ public class FacebookSession {
 		}
 		else
 		{
-			// Already initialized, signal an app activation App Event
+			// Activate the app if the SDK is already initialized
 			FB.ActivateApp();
 			ConnectToFacebookWithReadPermissions();
 		}
@@ -114,13 +123,13 @@ public class FacebookSession {
 	{
 		if (FB.IsInitialized)
 		{
-			// Signal an app activation App Event
+			// Activate the app
 			FB.ActivateApp();
 			ConnectToFacebookWithReadPermissions();
 		}
 		else
 		{
-			// Print a nice sorry message for the retard who tried to connect without internet
+			// You're not connected to the internet
 		}
 	}
 
@@ -144,11 +153,9 @@ public class FacebookSession {
 
 	private static void ConnectWithReadPermissionsCallback(ILoginResult result)
 	{
-		// Handle post-login for different levels depending on what information they will need
-
 		GetUsername();
 		GetProfilePicture(SwipeballConstants.FacebookConstants.LoggedInUserId);
-		GetHighScore();
+		SyncHighScore();
 	}
 
 	public static void GetUsername()
@@ -206,15 +213,15 @@ public class FacebookSession {
 		}
 	}
 
-	public static void GetHighScore()
+	public static void SyncHighScore()
 	{
 		if (FB.IsLoggedIn)
 		{
-			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores?fields=score,application", HttpMethod.GET, GetHighScoreCallback);
+			FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores?fields=score,application", HttpMethod.GET, SyncHighScoreCallback);
 		}
 	}
 
-	private static void GetHighScoreCallback(IGraphResult result)
+	private static void SyncHighScoreCallback(IGraphResult result)
 	{
 		var data = Facebook.MiniJSON.Json.Deserialize(result.RawResult) as Dictionary<string, object>;
 
@@ -310,8 +317,6 @@ public class FacebookSession {
 
 	private static void ConnectWithPublishPermissionsCallback(ILoginResult result)
 	{
-		// Handle post-login for different levels depending on what information they will need to post
-
 		// Post high score
 		FB.API(SwipeballConstants.FacebookConstants.LoggedInUserId + "/scores", HttpMethod.POST, ScorePublishCallback, publishScoreDictionary);
 	}

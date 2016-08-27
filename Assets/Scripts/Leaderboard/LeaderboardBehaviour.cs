@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the primary GameObject in the Leaderboard level
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -41,6 +46,7 @@ public class LeaderboardBehaviour : MonoBehaviour {
 
 	public void PopulateList()
 	{
+		// Once the FacebookSession class has loaded the leaderboard data, display it in a list
 		GameObject userList = GameObject.Find(SwipeballConstants.GameObjectNames.Leaderboard.UserList);
 
 		foreach (string userId in FacebookSession.leaderboardUserIdsSorted)

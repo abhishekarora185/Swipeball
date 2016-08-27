@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the Master of all spawning and death of the Ball, the Cleaver and Mines
+ * */
+
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -24,7 +29,7 @@ public class SpawnBehaviour : MonoBehaviour {
 	public int ballLives;
 	// The position on the field where the ball spawns
 	private Vector3 ballSpawnPosition;
-	// The upper limit on number of mines that can be on the field at a given point in time
+	// The upper limit on the number of mines that can be on the field at a given point in time
 	private int maxMinesOnField;
 	// The total number of mines spawned in the current wave
 	private int minesCreated;
@@ -40,10 +45,10 @@ public class SpawnBehaviour : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		// Set high framerate for iOS
+		// Force high framerate for iOS
 		if (Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.Android) 
 		{
-			Application.targetFrameRate = 60;
+			Application.targetFrameRate = SwipeballConstants.MobileFrameRate;
 		}
 
 		this.objectScalingFactor = Screen.height / SwipeballConstants.Scaling.GameHeightForOriginalSize;
@@ -63,7 +68,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		this.entityPositions = new List<Vector3>();
 
 		UIOperations.SetTextProperties();
-		AddBallAndCleaver();
+		ConfigureAndSpawnBallAndCleaver();
 	}
 	
 	// Update is called once per frame
@@ -71,7 +76,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
 		{
 			CleanPositionList();
-			AddMines();
+			ConfigureAndSpawnMines();
 		}
 	}
 
@@ -80,7 +85,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		FacebookSession.TerminateNetworkThread();
 	}
 
-	private void AddBallAndCleaver()
+	private void ConfigureAndSpawnBallAndCleaver()
 	{
 		this.ballSpawnPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.7f, 0.5f));
 		this.ballSpawnPosition.z = 0.0f;
@@ -100,20 +105,17 @@ public class SpawnBehaviour : MonoBehaviour {
 		mineDefinition.GetComponent<Light>().intensity = SwipeballConstants.Effects.LightIntensity;
 
 		// Spawn the ball and cleaver
-		GameObject ball = (GameObject)Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
-		GameObject cleaver = (GameObject)Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
-
-		ball.GetComponent<BallBehaviour>().lastPosition = this.ballSpawnPosition;
-		cleaver.GetComponent<CleaverBehaviour>().lastPosition = cleaverSpawnPosition;
+		Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
+		Instantiate(cleaverDefinition, cleaverSpawnPosition, Quaternion.identity);
 
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
 	}
 
-	private void AddMines()
+	private void ConfigureAndSpawnMines()
 	{
 		while (minesOnField < maxMinesOnField)
 		{
-			// Choose to spawn a mine at any point along the boundary
+			// Choose to spawn a mine at any point along the boundary of the play area
 			Vector3[] spawnPositions = {
 				Camera.main.ViewportToWorldPoint(new Vector3(0.1f, Random.value)),
 				Camera.main.ViewportToWorldPoint(new Vector3(0.9f, Random.value)),
@@ -125,7 +127,7 @@ public class SpawnBehaviour : MonoBehaviour {
 			Vector3 finalSpawnPosition = Vector3.zero;
 			float maxSpawnPoints = 0;
 
-			// Give each of the spawn positions scores based on their proximity to the entities
+			// Give each of the spawn positions scores based on their proximity to the entities (ball, cleaver, other mines)
 			foreach (Vector3 entityPosition in entityPositions)
 			{
 				for (int position = 0; position < spawnPositions.Length; position++)
@@ -148,7 +150,7 @@ public class SpawnBehaviour : MonoBehaviour {
 				}
 			}
 
-			// Spawn position's z co-ordinate is defaulting to the camera's plane for some reason
+			// Spawn position's z co-ordinate is defaulting to the camera's plane for some reason, so set it back to the plane of the play area
 			finalSpawnPosition.z = 0.0f;
 
 			// Create a brand new instance of the mine
@@ -205,7 +207,7 @@ public class SpawnBehaviour : MonoBehaviour {
 			if (this.ballLives <= 0)
 			{
 				// Kill everything. Existence ceases to have meaning
-				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.GameObjectTags.ActiveEntityTag))
 				{
 					DestroyObject(activeEntity);
 				}
@@ -220,7 +222,7 @@ public class SpawnBehaviour : MonoBehaviour {
 				DestroyObject(deadObject);
 
 				// Render all mines dormant
-				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag))
+				foreach (GameObject activeEntity in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.GameObjectTags.ActiveEntityTag))
 				{
 					if (activeEntity.name == SwipeballConstants.GameObjectNames.Game.Mine && activeEntity.GetComponent<MineBehaviour>() != null)
 					{
@@ -231,8 +233,7 @@ public class SpawnBehaviour : MonoBehaviour {
 				this.ballLives--;
 
 				// Respawn the ball
-				GameObject newBall = (GameObject)Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
-				newBall.GetComponent<BallBehaviour>().lastPosition = this.ballSpawnPosition;
+				Instantiate(ballDefinition, this.ballSpawnPosition, Quaternion.identity);
 				StartCoroutine(SwipeballAnimation.PlayRespawnAnimation());
 				
 				GameObject.Find(SwipeballConstants.GameObjectNames.Game.Scorekeeper).GetComponent<Scorekeeping>().DisplayLives();
@@ -246,6 +247,8 @@ public class SpawnBehaviour : MonoBehaviour {
 
 	// Called by mines, the cleaver and the ball, this checks if the given entity is outside of the viewport
 	// (which would mean that the laws of physX have been compromised), and ends the game if so, since there is no point in living on
+	// As there have been no such untoward incidents with the current applied variables (various experimentally-determined numerical values), this should not be regularly triggered
+	// And just serves as a worst-case precaution, a graceful degradation of sorts
 	public void KillBallIfOutOfBounds(GameObject entity)
 	{
 		Vector3 entityPosition = entity.transform.position;
@@ -268,7 +271,7 @@ public class SpawnBehaviour : MonoBehaviour {
 		}
 	}
 
-	// End the game if the laws of physX have been violated or if the laws of ball mortality have been tested
+	// End the game if the laws of physX have been violated or if the Ball has collided with a Mine
 	public void KillBall()
 	{
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.Ball).GetComponent<BallBehaviour>().isDead = true;

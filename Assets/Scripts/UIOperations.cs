@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the helper class that scales text according to screen size
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -6,7 +11,7 @@ public class UIOperations {
 
 	public static void SetTextProperties()
 	{
-		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
+		foreach (GameObject textObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.GameObjectTags.TextTag))
 		{
 			if (textObject.GetComponent<Text>() != null)
 			{

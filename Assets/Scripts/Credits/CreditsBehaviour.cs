@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the primary GameObject in the Credits level
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 

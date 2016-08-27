@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to each text object that comes up whenever the score is raised
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -12,10 +17,5 @@ public class ScoreIncrementBehaviour : MonoBehaviour {
 
 		// Fade out the game object
 		this.gameObject.GetComponent<Text>().CrossFadeAlpha(0.0f, SwipeballConstants.ScoreIncrements.GameObjectAliveFrames, false);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
 	}
 }

@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is a helper class used to compensate for Unity's occasional inability to provide for the game's required physics behaviour
+ * */
+
+using UnityEngine;
 using System.Collections.Generic;
 
 public class PhysicsHacks {

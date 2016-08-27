@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the primary GameObject in the Settings level
+ * */
+
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -11,11 +16,6 @@ public class SettingsBehaviour : MonoBehaviour {
 	void Start () {
 		UIOperations.SetTextProperties();
 		SetButtonListeners();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 
 	void OnApplicationQuit()
@@ -73,6 +73,7 @@ public class SettingsBehaviour : MonoBehaviour {
 			{
 				SaveDataHandler.SetSyncWithFacebook(false);
 				syncWithFacebookButton.GetComponent<Text>().text = SwipeballConstants.UIText.SyncWithFacebook + SwipeballConstants.UIText.Off;
+				// Facebook logout should be handled by your Facebook app, and not by any other apps using the SDK
 				//FB.LogOut();
 				FacebookSession.ClearCache();
 			}
@@ -98,7 +99,7 @@ public class SettingsBehaviour : MonoBehaviour {
 			}
 			controlModeButton.GetComponent<Text>().text = SwipeballConstants.UIText.ControlModes + SwipeballConstants.UIText.ControlModeDisplayName[SaveDataHandler.GetLoadedSaveData().controlMode];
 		});
-
+		// If the user wants to view tutorials again, (s)he can reset them
 		GameObject resetTutorialsButton = GameObject.Find(SwipeballConstants.GameObjectNames.Settings.ResetTutorials);
 		resetTutorialsButton.SetActive(false);
 		if (SaveDataHandler.GetLoadedSaveData().viewedTutorials.Count > 0)

@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the Game Object that controls the Tutorials that run during the game
+ * */
+
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -27,6 +32,7 @@ public class TutorialBehaviour : MonoBehaviour {
 			this.PlayTutorial();
 		}
 
+		// A simple click/touch will end the tutorial
 		if (this.isTutorialPlaying && Input.GetKeyDown(KeyCode.Mouse0))
 		{
 			this.tutorialText.GetComponent<Text>().text = string.Empty;
@@ -41,7 +47,7 @@ public class TutorialBehaviour : MonoBehaviour {
 				}
 			}
 
-			// Add the viewed tutorial to the list of viewed tutorials in save data
+			// Add the viewed tutorial to the list of viewed tutorials in save data so that they don't have to be viewed again
 			SaveDataHandler.AddViewedTutorial(this.tutorialObject);
 
 			this.tutorial.GetComponent<Image>().enabled = false;
@@ -69,7 +75,7 @@ public class TutorialBehaviour : MonoBehaviour {
 	{
 		if (SaveDataHandler.GetLoadedSaveData().viewedTutorials.Contains(this.tutorialObject))
 		{
-			// Don't play the tutorial again
+			// Don't play the tutorial again if the user has already viewed it
 		}
 		else
 		{
@@ -84,7 +90,7 @@ public class TutorialBehaviour : MonoBehaviour {
 				this.tutorialText.GetComponent<Text>().text = SwipeballConstants.UIText.TutorialText[this.tutorialObject];
 			}
 
-			// Light up the relevant game object
+			// Light up the relevant game object to bring it into focus
 			if (SwipeballConstants.GameObjectNames.Game.PrimaryGameObjectNameForTutorial.ContainsKey(this.tutorialObject))
 			{
 				GameObject primaryGameObject = GameObject.Find(SwipeballConstants.GameObjectNames.Game.PrimaryGameObjectNameForTutorial[this.tutorialObject]);

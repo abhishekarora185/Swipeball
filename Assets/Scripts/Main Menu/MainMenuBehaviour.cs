@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the primary GameObject in the MainMenu level
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -8,7 +13,7 @@ using Facebook.Unity;
 public class MainMenuBehaviour : MonoBehaviour {
 
 
-	// Render the cleaver with minimum required components at the center of the main menu
+	// Render the cleaver with minimum required components at the center of the main menu as a decoration
 	public GameObject cleaverDefinition;
 
 	private GameObject cleaver;
@@ -112,11 +117,12 @@ public class MainMenuBehaviour : MonoBehaviour {
 		}
 	}
 
+	// Whenever the main menu is loaded, the high score is synced (if the user is logged in to Facebook, of course)
 	private void TrySyncHighScore()
 	{
-		if (FB.IsInitialized && FB.IsLoggedIn)
+		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FB.IsInitialized && FB.IsLoggedIn)
 		{
-			FacebookSession.GetHighScore();
+			FacebookSession.SyncHighScore();
 		}
 	}
 
@@ -162,16 +168,19 @@ public class MainMenuBehaviour : MonoBehaviour {
 
 	}
 
+	// Displays the word "Synced" on screen after(if) the high score is synced with Facebook
 	public void PrintSyncedMessage()
 	{
 		StartCoroutine(SwipeballAnimation.PrintSyncedMessage());
 	}
 
+	// Player is ready!
 	public void StartGame()
 	{
 		Application.LoadLevel(SwipeballConstants.LevelNames.Game);
 	}
 
+	// Once Facebook data has been successfully obtained, we can allow the user to open the leaderboard
 	private void EnableLeaderboard()
 	{
 		FacebookSession.canEnableLeaderboard = false;
@@ -193,6 +202,7 @@ public class MainMenuBehaviour : MonoBehaviour {
 		}
 	}
 
+	// Pauses the game when Facebook authentication is in progress
 	private void HideUnity()
 	{
 		FacebookSession.canHideUnity = false;
@@ -207,6 +217,8 @@ public class MainMenuBehaviour : MonoBehaviour {
 			Time.timeScale = 1;
 		}
 	}
+
+	// These two methods display information once the relevant Facebook data is obtained
 
 	private void DisplayUsername()
 	{

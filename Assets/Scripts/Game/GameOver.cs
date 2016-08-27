@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * The helper class that creates the Game Over menu in the Game level once the player is out of lives
+ * */
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 

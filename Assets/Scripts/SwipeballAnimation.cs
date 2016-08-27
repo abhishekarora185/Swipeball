@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the helper class that handles most animations in the menus and in the game
+ * */
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -17,7 +22,7 @@ public class SwipeballAnimation {
 
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.ProfilePicture).GetComponent<Image>().CrossFadeAlpha(0.0f, SwipeballConstants.Effects.GameStartGraphicFadeDuration, false);
 
-		foreach (GameObject textGameObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.ObjectTags.TextTag))
+		foreach (GameObject textGameObject in GameObject.FindGameObjectsWithTag(SwipeballConstants.GameObjectNames.GameObjectTags.TextTag))
 		{
 			textGameObject.GetComponent<Text>().CrossFadeAlpha(0.0f, SwipeballConstants.Effects.GameStartGraphicFadeDuration, false);
 		}
@@ -97,7 +102,7 @@ public class SwipeballAnimation {
 
 	public static IEnumerator PrintSyncedMessage()
 	{
-		// This is only called by main menu, so it is assumed that the required objects exist
+		// This is only called by the main menu, so it is assumed that the required objects exist
 		string originalText = GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text;
 		GameObject.Find(SwipeballConstants.GameObjectNames.MainMenu.HighScore).GetComponent<Text>().text = SwipeballConstants.UIText.Synced;
 

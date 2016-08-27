@@ -1,21 +1,21 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the Ball which the player controls in the Game level
+ * */
+
+using UnityEngine;
 using System.Collections;
 
 public class BallBehaviour : MonoBehaviour {
 
-	// Controls the movement of the player's ball
-
 	// Determines if the ball is dead or not
 	public bool isDead;
-	// The last position of the ball, needed for raycasting
-	public Vector3 lastPosition;
-	// The point on the map where the ball respawns
-	private Vector3 respawnPoint;
 	// The physics body of the ball
 	private Rigidbody2D ballBody;
 	// The start position of a swipe input
 	private Vector2 initialPosition;
-	// Since the ball changes light range while detecting input, it is easy to get incorrect values from other sources manipulating it
+	// Since the ball changes the range of its light while detecting input (as a minimal feedback mechanism), 
+	// it is easy to get incorrect values from other sources manipulating it (like collisions)
 	// Thus, store both ranges adjustable by input
 	private float inputLightRangeOff;
 	private float inputLightRangeOn;
@@ -24,19 +24,18 @@ public class BallBehaviour : MonoBehaviour {
 	void Start () {
 		this.gameObject.name = SwipeballConstants.GameObjectNames.Game.Ball;
 		this.ballBody = this.gameObject.GetComponent<Rigidbody2D>();
-		this.respawnPoint = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
-		this.respawnPoint.z = 0;
 		this.isDead = false;
 		this.inputLightRangeOff = this.gameObject.GetComponent<Light>().range;
 		this.inputLightRangeOn = this.gameObject.GetComponent<Light>().range * SwipeballConstants.Effects.BallMoveLightRangeMagnify;
 
-		this.gameObject.tag = SwipeballConstants.GameObjectNames.ObjectTags.ActiveEntityTag;
+		this.gameObject.tag = SwipeballConstants.GameObjectNames.GameObjectTags.ActiveEntityTag;
 
 		GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().tutorialPlayQueue.Enqueue(SwipeballConstants.Tutorial.Ball);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		// If we're not in the middle of a tutorial, make things work like they're supposed to
 		if (!GameObject.Find(SwipeballConstants.GameObjectNames.Game.TutorialBehaviour).GetComponent<TutorialBehaviour>().isTutorialPlaying)
 		{
 			UpdateMovementFromUserInput();
@@ -51,19 +50,19 @@ public class BallBehaviour : MonoBehaviour {
 
 		if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.DragAndRelease)
 		{
-			// When the user's finger embraces the screen
+			// Touch
 			if (Input.GetKeyDown(KeyCode.Mouse0))
 			{
 				this.initialPosition = Input.mousePosition;
 			}
 
-			// While the user caresses the screen gently
+			// Drag
 			if (Input.GetKey(KeyCode.Mouse0))
 			{
 
 			}
 
-			// When the user is done with the screen for now
+			// Release
 			if (Input.GetKeyUp(KeyCode.Mouse0))
 			{
 				Vector2 finalPosition = Input.mousePosition;
@@ -85,19 +84,20 @@ public class BallBehaviour : MonoBehaviour {
 		}
 		else if (SaveDataHandler.GetLoadedSaveData().controlMode == SwipeballConstants.ControlMode.FollowSwipe)
 		{
-
+			// Touch
 			if (Input.GetKeyDown(KeyCode.Mouse0))
 			{
 				this.initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				this.ballBody.velocity = Vector3.zero;
 
-				// A rudimentary animation
+				// A rudimentary animation that serves the purpose of input feedback too
 				if (this.gameObject.GetComponent<Light>() != null)
 				{
 					this.gameObject.GetComponent<Light>().range = this.inputLightRangeOn;
 				}
 			}
 
+			// Drag
 			if (Input.GetKey(KeyCode.Mouse0))
 			{
 				Vector2 finalPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -116,6 +116,7 @@ public class BallBehaviour : MonoBehaviour {
 				this.initialPosition = finalPosition;
 			}
 
+			// Release
 			if (Input.GetKeyUp(KeyCode.Mouse0))
 			{
 				if (this.gameObject.GetComponent<Light>() != null)

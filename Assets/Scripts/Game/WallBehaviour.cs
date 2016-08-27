@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script attached to the Walls, that keep everything within the field of play
+ * */
+
+using UnityEngine;
 using System.Collections;
 
 public class WallBehaviour : MonoBehaviour {
@@ -16,6 +21,7 @@ public class WallBehaviour : MonoBehaviour {
 		EdgeCollider2D bottomWall = horizontalWalls.AddComponent<EdgeCollider2D>();
 		EdgeCollider2D topWall = horizontalWalls.AddComponent<EdgeCollider2D>();
 
+		// Enable the walls to push back objects so that they don't stick to it
 		PhysicsMaterial2D bouncyMaterial = new PhysicsMaterial2D(SwipeballConstants.MaterialNames.BouncyMaterial);
 		leftWall.sharedMaterial = bouncyMaterial;
 		rightWall.sharedMaterial = bouncyMaterial;

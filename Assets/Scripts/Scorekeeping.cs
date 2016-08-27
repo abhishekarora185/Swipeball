@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the Behaviour script that handles score computation and notifications (if you've beaten one of your friends) during the game
+ * */
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.IO;
@@ -226,7 +231,7 @@ public class Scorekeeping : MonoBehaviour {
 		}
 	}
 
-	// Score increments triggered by game objects; their positions are taken to determine where to display the score increment prefab
+	// Score increments triggered by game objects; their positions are taken to determine where to display the score increment text
 	public void IncreaseScore(int increasedScore, Vector3 gameObjectPosition)
 	{
 		this.score += increasedScore;
@@ -250,7 +255,7 @@ public class Scorekeeping : MonoBehaviour {
 		}
 	}
 
-	// Store the changed (if you played well enough) leaderboard list in the Facebook cache, if applicable
+	// Store the possibly modified leaderboard list in the Facebook cache, if applicable
 	public void ReassembleLeaderboardList()
 	{
 		if (SaveDataHandler.GetLoadedSaveData().syncWithFacebook && FacebookSession.IsLeaderboardReady() && this.leaderboardStackInitialized)

@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * This is the helper class that defines the save data model and exposes it to the rest of the game components for use and modification
+ * */
+
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -100,6 +105,7 @@ public class SaveDataHandler
 	}
 }
 
+// Making save data serializable so as to store it conveniently
 [Serializable]
 public class SaveData {
 

@@ -1,10 +1,17 @@
-﻿using UnityEngine;
+﻿/*
+ * Author: Abhishek Arora
+ * All Constants (strings/numerical) used throughout the project are defined here
+ * */
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class SwipeballConstants {
 
 	// Constants/Enums to be used throughout the project
+
+	public const int MobileFrameRate = 60;
 
 	[System.Serializable]
 	public enum ControlMode
@@ -25,7 +32,7 @@ public class SwipeballConstants {
 
 	public class GameObjectNames
 	{
-		// Present in every level
+		// Present in every level as the UI game object container
 		public const string Canvas = "Canvas";
 
 		// Names of entities in the game
@@ -152,7 +159,7 @@ public class SwipeballConstants {
 			public const string LeaderboardEffects = "Leaderboard Effects";
 		}
 
-		public class ObjectTags
+		public class GameObjectTags
 		{
 			public const string ActiveEntityTag = "Active Entity";
 
@@ -201,6 +208,33 @@ public class SwipeballConstants {
 		public const string HighPowerSound = "Sounds/SFX/HighPowerSound.wav";
 
 		public const string NewHighScoreSound = "Sounds/SFX/Button_Press.wav";
+	}
+
+	public class GameObjectQuantities
+	{
+		public class Mine
+		{
+			// The number of update cycles till the mines reorient themselves towards the ball
+			public const int ReorientationDelay = 100;
+			// The multiplier to the force added to the mine for reorientation
+			public const float ReorientationSensitivity = 20.0f;
+			// The multiplier to the force with which two mines repel each other (they tend to get stuck together otherwise)
+			public const float RepulsionSensitivity = 50.0f;
+			// The multiplier to the explosive force released during the death of a mine
+			public const float ExplosionSensitivity = 3.0f;
+		}
+
+		public class Cleaver
+		{
+			// The maximum battery level of the cleaver
+			public const int MaxPower = 5000;
+			// The maximum mass that can be added to the cleaver through power drain
+			public const float MaxAdditionalMass = 3;
+			// The multiplier to the power restored by an impact from the ball
+			public const float ChargeSensitivity = 20.0f;
+			// The multiplier to the force which prevents the cleaver from sticking to walls
+			public const float RepulsionSensitivity = 50.0f;
+		}
 	}
 
 	public class ScoreIncrements
@@ -379,6 +413,7 @@ public class SwipeballConstants {
 		public const float FollowSwipeInputSensitivity = 70.0f;
 	}
 
+	// Needed to enable the thin wall colliders to contain all objects within them
 	public class PhysicsHacks
 	{
 		public const float SpeedCap = 200.0f;
